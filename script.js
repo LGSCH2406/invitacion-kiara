@@ -513,7 +513,7 @@ const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ELEMENTOS DEL DOM UNIFICADOS ---
+    // --- ELEMENTOS DEL DOM ---
     const rsvpForm = document.getElementById('rsvpForm');
     const nameInput = document.getElementById('guestName');
     const attendanceSelect = document.getElementById('attendance');
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminGuestTableBody = document.getElementById('adminGuestTableBody');
 
     // ==========================================
-    // 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE (LEVENSHTEIN)
+    // 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE
     // ==========================================
     const NICKNAMES = {
         "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // 📋 PROCESO RSVP CON FIRESTORE ("asistencias")
+    // 📋 PROCESO RSVP CON TU COLECCIÓN "invitados"
     // ==========================================
     if (rsvpForm && resultBox) {
         rsvpForm.addEventListener('submit', async function(e) {
@@ -609,8 +609,8 @@ document.addEventListener('DOMContentLoaded', () => {
             resultBox.innerHTML = "";
 
             try {
-                // Jalamos la lista en tiempo real directamente de la colección "asistencias"
-                const querySnapshot = await getDocs(collection(db, "asistencias"));
+                // Buscamos directamente en tu colección real "invitados"
+                const querySnapshot = await getDocs(collection(db, "invitados"));
                 const currentGuestsList = [];
                 querySnapshot.forEach((doc) => {
                     currentGuestsList.push({ id: doc.id, ...doc.data() });
@@ -622,8 +622,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const guest = matchData.guest;
                     const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
 
-                    // Actualizamos el estado del documento usando su ID real de Firestore
-                    const guestRef = doc(db, "asistencias", guest.id);
+                    // Actualización directa usando el ID del documento en la nube
+                    const guestRef = doc(db, "invitados", guest.id);
                     await updateDoc(guestRef, { estado: nuevoEstado });
 
                     resultBox.className = "result-card success";
@@ -661,7 +661,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button type="button" id="btnDownloadTicket" class="btn-download">💾 Descargar Pase</button>
                         `;
 
-                        // Generación dinámica del código QR
                         setTimeout(() => {
                             const qrContainer = document.getElementById('ticketQrcode');
                             if (qrContainer) {
@@ -681,8 +680,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultBox.innerHTML = `<div class="result-icon">❌</div><h3>No encontrado</h3><p>No encontramos ninguna coincidencia. Por favor, revisa cómo escribiste tu nombre.</p>`;
                 }
             } catch (err) {
-                console.error("Error en el proceso RSVP:", err);
-                alert("Error de conexión al procesar la confirmación.");
+                console.error("Error RSVP:", err);
+                alert("Error de conexión al guardar.");
             } finally {
                 if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
                 resultBox.scrollIntoView({ behavior: 'smooth' });
@@ -691,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 🔒 LOGIN MODO ADMINISTRADOR (LOCAL REPARADO)
+    // 🔒 LOGIN MODO ADMINISTRADOR (SEGURO LOCAL)
     // ==========================================
     if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
     if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
@@ -702,16 +701,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const inputEmail = document.getElementById('adminEmail').value.trim();
             const inputPassword = document.getElementById('adminPassword').value;
 
+            // Validación segura por variables para evitar caídas de Firebase Auth mal configuradas
             if (inputEmail === "admineventokiara@gmail.com" && inputPassword === "Bautizokiara152406") {
                 adminLoginModal.style.display = "none";
                 mainViewContainer.style.display = "none";
                 adminViewContainer.style.display = "block";
                 loginAdminForm.reset();
-                
-                // Activamos la escucha en tiempo real de la tabla
                 activarEscuchaPanelAdmin(); 
             } else {
-                alert("❌ Credenciales incorrectas. Acceso denegado.");
+                alert("❌ Credenciales incorrectas.");
             }
         });
     }
@@ -724,11 +722,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 📊 ESCUCHADOR EN TIEMPO REAL (REAL-TIME SNAPSHOT)
+    // 📊 ESCUCHADOR EN TIEMPO REAL ("invitados")
     // ==========================================
     function activarEscuchaPanelAdmin() {
-        // onSnapshot hace que si alguien confirma desde su celular, la tabla del admin cambie sola al instante sin recargar la página
-        onSnapshot(collection(db, "asistencias"), (snapshot) => {
+        onSnapshot(collection(db, "invitados"), (snapshot) => {
             let countYes = 0; let countNo = 0; let countPending = 0; let totalPasses = 0;
             adminGuestTableBody.innerHTML = ""; 
 
@@ -755,14 +752,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.style.borderBottom = "1px solid #e2e8f0";
                 tr.innerHTML = `
                     <td style="padding:12px; display:flex; align-items:center; font-size:0.8rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
-                    <td style="padding:12px; font-weight:600; color:#333;">${guest.nombre || 'Sin nombre'}</td>
-                    <td style="padding:12px; color:#555;">${guest.mesa || '—'}</td>
+                    <td style="padding:12px; font-weight:600;">${guest.nombre || 'Sin nombre'}</td>
+                    <td style="padding:12px;">${guest.mesa || '—'}</td>
                     <td style="padding:12px; font-weight:600; color:#b89742;">${pasesItem}</td>
                 `;
                 adminGuestTableBody.appendChild(tr);
             });
 
-            // Actualizar tarjetas de contadores superiores
             document.getElementById('statYes').innerText = countYes;
             document.getElementById('statNo').innerText = countNo;
             document.getElementById('statPending').innerText = countPending;
@@ -770,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Descarga de pases interactivos
+    // Descarga de tickets
     document.body.addEventListener('click', function (e) {
         if (e.target && e.target.id === 'btnDownloadTicket') {
             const guestName = document.querySelector('.ticket-guest-name').innerText;
@@ -783,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Contador regresivo estable (Junio 13, 2026)
+    // Contador regresivo estable
     const eventDate = new Date(2026, 5, 13, 10, 0, 0).getTime();
     setInterval(() => {
         const diff = eventDate - new Date().getTime();
