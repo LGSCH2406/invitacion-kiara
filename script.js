@@ -511,9 +511,68 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// ==========================================
+// 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE
+// ==========================================
+const NICKNAMES = {
+    "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
+};
+
+const normalizeText = (text) => {
+    if (!text) return [];
+    let clean = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").trim();
+    let words = clean.split(/\s+/);
+    return words.map(word => NICKNAMES[word] || word).filter(w => w !== "");
+};
+
+const calculateLevenshtein = (s1, s2) => {
+    if (s1 === s2) return 1.0;
+    const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null));
+    for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
+    for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
+
+    for (let j = 1; j <= s2.length; j += 1) {
+        for (let i = 1; i <= s1.length; i += 1) {
+            const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
+            track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator);
+        }
+    }
+    return (Math.max(s1.length, s2.length) - track[s2.length][s1.length]) / Math.max(s1.length, s2.length);
+};
+
+const findGuestMatch = (inputName, firebaseGuestsList) => {
+    const inputWords = normalizeText(inputName);
+    if (inputWords.length === 0) return null;
+    const inputFirstName = inputWords[0];
+    let bestMatch = null; 
+    let highestScore = 0;
+
+    for (const guest of firebaseGuestsList) {
+        if (!guest.nombre) continue; 
+        const guestWords = normalizeText(guest.nombre);
+        if (guestWords.length === 0) continue;
+        
+        if (calculateLevenshtein(inputFirstName, guestWords[0]) < 0.65) continue;
+
+        const s1Str = inputWords.join(" "); 
+        const s2Str = guestWords.join(" ");
+        let score = calculateLevenshtein(s1Str, s2Str);
+        if (s2Str.includes(s1Str) || s1Str.includes(s2Str)) score = Math.max(score, 0.85);
+
+        if (score > highestScore) { 
+            highestScore = score; 
+            bestMatch = guest; 
+        }
+    }
+    return highestScore >= 0.60 ? { guest: bestMatch, score: highestScore } : null;
+};
+
+// ==========================================
+// 🚀 INICIALIZACIÓN DE LA APLICACIÓN
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ELEMENTOS DEL DOM ---
+    // Elementos del DOM
     const rsvpForm = document.getElementById('rsvpForm');
     const nameInput = document.getElementById('guestName');
     const attendanceSelect = document.getElementById('attendance');
@@ -529,64 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminViewContainer = document.getElementById('adminViewContainer');
     const adminGuestTableBody = document.getElementById('adminGuestTableBody');
 
-    // ==========================================
-    // 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE
-    // ==========================================
-    const NICKNAMES = {
-        "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
-    };
-
-    const normalizeText = (text) => {
-        let clean = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").trim();
-        let words = clean.split(/\s+/);
-        return words.map(word => NICKNAMES[word] || word).filter(w => w !== "");
-    };
-
-    const calculateLevenshtein = (s1, s2) => {
-        if (s1 === s2) return 1.0;
-        const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null));
-        for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
-        for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
-
-        for (let j = 1; j <= s2.length; j += 1) {
-            for (let i = 1; i <= s1.length; i += 1) {
-                const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
-                track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator);
-            }
-        }
-        return (Math.max(s1.length, s2.length) - track[s2.length][s1.length]) / Math.max(s1.length, s2.length);
-    };
-
-    const findGuestMatch = (inputName, firebaseGuestsList) => {
-        const inputWords = normalizeText(inputName);
-        if (inputWords.length === 0) return null;
-        const inputFirstName = inputWords[0];
-        let bestMatch = null; 
-        let highestScore = 0;
-
-        for (const guest of firebaseGuestsList) {
-            if (!guest.nombre) continue; 
-            const guestWords = normalizeText(guest.nombre);
-            if (guestWords.length === 0) continue;
-            
-            if (calculateLevenshtein(inputFirstName, guestWords[0]) < 0.65) continue;
-
-            const s1Str = inputWords.join(" "); 
-            const s2Str = guestWords.join(" ");
-            let score = calculateLevenshtein(s1Str, s2Str);
-            if (s2Str.includes(s1Str) || s1Str.includes(s2Str)) score = Math.max(score, 0.85);
-
-            if (score > highestScore) { 
-                highestScore = score; 
-                bestMatch = guest; 
-            }
-        }
-        return highestScore >= 0.60 ? { guest: bestMatch, score: highestScore } : null;
-    };
-
-    // ==========================================
-    // 📋 PROCESO RSVP CON TU COLECCIÓN "invitados"
-    // ==========================================
+    // 📋 PROCESO RSVP CON FIREBASE DE FORMA DIRECTA
     if (rsvpForm && resultBox) {
         rsvpForm.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -609,7 +611,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultBox.innerHTML = "";
 
             try {
-                // Buscamos directamente en tu colección real "invitados"
+                // Consultar colección "invitados" directamente de la nube
                 const querySnapshot = await getDocs(collection(db, "invitados"));
                 const currentGuestsList = [];
                 querySnapshot.forEach((doc) => {
@@ -622,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const guest = matchData.guest;
                     const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
 
-                    // Actualización directa usando el ID del documento en la nube
+                    // Actualizar documento en Firestore usando su ID único
                     const guestRef = doc(db, "invitados", guest.id);
                     await updateDoc(guestRef, { estado: nuevoEstado });
 
@@ -636,6 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p>Lamentamos mucho que no puedas acompañarnos, <strong>${guest.nombre}</strong>. ¡Agradecemos tu respuesta!</p>
                         `;
                     } else {
+                        const obsText = matchData.score < 0.92 ? `<p style="color:#777; font-size:0.85rem; margin-bottom:10px;">Encontrado como: "<em>${guest.nombre}</em>"</p>` : '';
                         resultBox.innerHTML = `
                             <div id="ticketCard" class="ticket-card" style="margin-top: 15px;">
                                 <div class="ticket-header">
@@ -645,6 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="ticket-body">
                                     <p class="ticket-label">Invitado Confirmado</p>
                                     <h3 class="ticket-guest-name" style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#b89742; font-style:italic; margin-bottom:15px;">${guest.nombre}</h3>
+                                    ${obsText}
                                     <div class="ticket-meta-grid">
                                         <div><span class="meta-label">Mesa Asignada</span><strong style="color:#b89742; font-size:1.15rem;">${guest.mesa || 'Por asignar'}</strong></div>
                                         <div><span class="meta-label">Total Pases</span><strong>${guest.pases || 1} Persona(s)</strong></div>
@@ -681,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {
                 console.error("Error RSVP:", err);
-                alert("Error de conexión al guardar.");
+                alert("Error de conexión al guardar en la base de datos.");
             } finally {
                 if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
                 resultBox.scrollIntoView({ behavior: 'smooth' });
@@ -689,9 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // 🔒 LOGIN MODO ADMINISTRADOR (SEGURO LOCAL)
-    // ==========================================
+    // 🔒 LOGIN MODO ADMINISTRADOR
     if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
     if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
 
@@ -701,7 +703,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const inputEmail = document.getElementById('adminEmail').value.trim();
             const inputPassword = document.getElementById('adminPassword').value;
 
-            // Validación segura por variables para evitar caídas de Firebase Auth mal configuradas
             if (inputEmail === "admineventokiara@gmail.com" && inputPassword === "Bautizokiara152406") {
                 adminLoginModal.style.display = "none";
                 mainViewContainer.style.display = "none";
@@ -721,9 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // 📊 ESCUCHADOR EN TIEMPO REAL ("invitados")
-    // ==========================================
+    // 📊 ESCUCHADOR EN TIEMPO REAL CON ONSNAPSHOT (Crucial para ver cambios de otros dispositivos)
     function activarEscuchaPanelAdmin() {
         onSnapshot(collection(db, "invitados"), (snapshot) => {
             let countYes = 0; let countNo = 0; let countPending = 0; let totalPasses = 0;
@@ -731,13 +730,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             snapshot.forEach((guestDoc) => {
                 const guest = guestDoc.data();
+                // Forzamos conversión a entero seguro por si hay números o strings mixtos
                 const pasesItem = parseInt(guest.pases) || 0;
                 let statusCircle = ""; let statusText = "PENDIENTE";
 
                 if (guest.estado === 'confirmado') {
                     statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#2ecc71; border-radius:50%; margin-right:10px;"></span>`;
                     statusText = "SÍ ASISTIRÁ";
-                    countYes++; totalPasses += pasesItem;
+                    countYes++; 
+                    totalPasses += pasesItem;
                 } else if (guest.estado === 'no asistirá') {
                     statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#e74c3c; border-radius:50%; margin-right:10px;"></span>`;
                     statusText = "NO ASISTIRÁ";
@@ -766,7 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Descarga de tickets
+    // Descarga de tickets mediante delegación de eventos
     document.body.addEventListener('click', function (e) {
         if (e.target && e.target.id === 'btnDownloadTicket') {
             const guestName = document.querySelector('.ticket-guest-name').innerText;
@@ -779,7 +780,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Contador regresivo estable
+    // ✨ Partículas de fondo animadas
+    const bg = document.getElementById('animatedBg');
+    if (bg) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div'); p.classList.add('particle');
+            p.style.width = p.style.height = `${Math.random() * 15 + 6}px`;
+            p.style.left = `${Math.random() * 100}%`; p.style.animationDelay = `${Math.random() * 5}s`;
+            bg.appendChild(p);
+        }
+    }
+
+    // Forzar visibilidad de animaciones fade-in
+    const animatedElements = document.querySelectorAll('.fade-in-up');
+    setTimeout(() => {
+        animatedElements.forEach(el => el.classList.add('visible'));
+    }, 100);
+
+    // ⏰ CUENTA REGRESIVA ESTABLE (Junio 13, 2026)
     const eventDate = new Date(2026, 5, 13, 10, 0, 0).getTime();
     setInterval(() => {
         const diff = eventDate - new Date().getTime();
@@ -791,3 +809,88 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1000);
 });
+
+// ========================================================
+// 🔍 SISTEMA DE VALIDACIÓN QR EN PUERTA
+// ========================================================
+const urlParams = new URLSearchParams(window.location.search);
+const invitadoAValidar = urlParams.get('validar');
+
+if (invitadoAValidar) {
+    async function validarInvitadoQR() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "invitados"));
+            const currentGuestsList = [];
+            querySnapshot.forEach((doc) => {
+                currentGuestsList.push({ id: doc.id, ...doc.data() });
+            });
+
+            const matchValidacion = findGuestMatch(invitadoAValidar, currentGuestsList);
+            const modalValidacion = document.createElement('div');
+            modalValidacion.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:20000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(8px); font-family:'Montserrat',sans-serif; padding:20px; box-sizing:border-box;";
+            
+            let contenidoModal = "";
+
+            if (matchValidacion) {
+                const g = matchValidacion.guest;
+                let estadoColor = "#cbd5e1"; 
+                let estadoTexto = "⏳ Invitación sin confirmar";
+                
+                if (g.estado === 'confirmado') {
+                    estadoColor = "#2ecc71"; 
+                    estadoTexto = "✅ ACCESO PERMITIDO";
+                } else if (g.estado === 'no asistirá') {
+                    estadoColor = "#e74c3c"; 
+                    estadoTexto = "❌ CONFIRMÓ QUE NO ASISTIRÍA";
+                }
+
+                contenidoModal = `
+                    <div style="background:white; border-radius:16px; padding:30px; text-align:center; max-width:450px; width:100%; box-shadow:0 15px 35px rgba(0,0,0,0.3); border-top: 8px solid ${estadoColor};">
+                        <div style="font-size:3.5rem; margin-bottom:10px;">🎫</div>
+                        <h2 style="font-family:'Playfair Display',serif; color:#1a1a1a; margin:0 0 10px 0; font-size:1.8rem;">Control de Entrada</h2>
+                        <div style="background:${estadoColor}20; color:${estadoColor}; font-weight:bold; padding:8px 15px; border-radius:30px; display:inline-block; margin-bottom:20px; font-size:0.9rem;">
+                            ${estadoTexto}
+                        </div>
+                        <p style="margin:0; color:#666; font-size:0.85rem; font-weight:600; text-transform:uppercase;">Invitado</p>
+                        <h3 style="margin:5px 0 15px 0; color:#1a1a1a; font-size:1.4rem;">${g.nombre}</h3>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; background:#f8f9fa; padding:15px; border-radius:10px; margin-bottom:25px; text-align:left;">
+                            <div>
+                                <span style="display:block; color:#777; font-size:0.75rem; font-weight:600;">MESA ASIGNADA</span>
+                                <strong style="color:#b89742; font-size:1.1rem;">${g.mesa || '—'}</strong>
+                            </div>
+                            <div>
+                                <span style="display:block; color:#777; font-size:0.75rem; font-weight:600;">N° DE PASES</span>
+                                <strong style="color:#1a1a1a; font-size:1.1rem;">${g.pases || 1} Persona(s)</strong>
+                            </div>
+                        </div>
+                        <button id="btnCerrarValidador" style="background:#1a1a1a; color:white; border:none; width:100%; padding:12px; border-radius:8px; font-weight:600; cursor:pointer;">
+                            Listo, Continuar
+                        </button>
+                    </div>
+                `;
+            } else {
+                contenidoModal = `
+                    <div style="background:white; border-radius:16px; padding:30px; text-align:center; max-width:450px; width:100%; box-shadow:0 15px 35px rgba(0,0,0,0.3); border-top: 8px solid #e74c3c;">
+                        <div style="font-size:3.5rem; margin-bottom:10px;">⚠️</div>
+                        <h2 style="font-family:'Playfair Display',serif; color:#e74c3c; margin:0 0 10px 0;">Error de Lectura</h2>
+                        <p style="color:#555; margin-bottom:20px;">El código QR escaneado contiene un invitado que no figura en la lista oficial.</p>
+                        <button id="btnCerrarValidador" style="background:#e74c3c; color:white; border:none; width:100%; padding:12px; border-radius:8px; font-weight:600; cursor:pointer;">
+                            Cerrar Alerta
+                        </button>
+                    </div>
+                `;
+            }
+
+            modalValidacion.innerHTML = contenidoModal;
+            document.body.appendChild(modalValidacion);
+
+            document.getElementById('btnCerrarValidador').addEventListener('click', () => {
+                modalValidacion.remove();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            });
+        } catch (e) {
+            console.error("Error en validación QR de puerta: ", e);
+        }
+    }
+    validarInvitadoQR();
+}
