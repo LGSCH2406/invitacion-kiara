@@ -180,54 +180,7 @@
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
-
-    <script type="module">
-  // 1. Importamos los módulos necesarios desde el CDN oficial
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  // 2. Tus credenciales reales (Copiadas de tu captura)
-  const firebaseConfig = {
-    apiKey: "AIzaSyASm2GfC5IzEOucWy1vm9roYIMO5SNJyYQ",
-    authDomain: "bautizo-kiara.firebaseapp.com",
-    projectId: "bautizo-kiara",
-    storageBucket: "bautizo-kiara.firebasestorage.app",
-    messagingSenderId: "538295578367",
-    appId: "1:538295578367:web:913884817710beb1b026ca"
-  };
-
-  // 3. Inicializamos los servicios
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // ID temporal para pruebas (asegúrate de que exista este documento en tu Firestore)
-  const idInvitado = "invitado_1"; 
-
-  // 4. Escuchar cambios en tiempo real (Sincroniza todas las pantallas)
-  onSnapshot(doc(db, "asistencias", idInvitado), (docSnap) => {
-    if (docSnap.exists()) {
-      const datos = docSnap.data();
-      console.log("Cambio detectado en la nube:", datos);
-      
-      // Aquí puedes mapear los datos a tus elementos visuales
-      // Ejemplo: document.getElementById("estado").innerText = datos.estado;
-    }
-  });
-
-  // 5. Exponer la función al HTML global para que los botones respondan
-  window.actualizarAsistencia = async function(nuevoEstado) {
-    const docRef = doc(db, "asistencias", idInvitado);
-    try {
-      await updateDoc(docRef, {
-        estado: nuevoEstado
-      });
-      console.log("¡Sincronizado en la nube con éxito!");
-    } catch (error) {
-      console.error("Error al actualizar Firestore:", error);
-    }
-  }
-</script>
+   <script type="module" src="script.js"></script>
         
 </body>
 </html>
