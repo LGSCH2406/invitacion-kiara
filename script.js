@@ -494,12 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 // ========================================================
-// 🔥 IMPORTACIONES DE FIREBASE (SDK v10+)
+// 🔥 CONFIGURACIÓN E IMPORTACIONES DE FIREBASE
 // ========================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 1. Configuración de tus credenciales de Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyASm2GfC5IzEOucWy1vm9roYIMO5SNJyYQ",
     authDomain: "bautizo-kiara.firebaseapp.com",
@@ -531,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminGuestTableBody = document.getElementById('adminGuestTableBody');
 
     // ==========================================
-    // 🧠 2. ALGORITMO DE COMPARACIÓN INTELIGENTE
+    // 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE
     // ==========================================
     const NICKNAMES = {
         "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
@@ -558,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return (Math.max(s1.length, s2.length) - track[s2.length][s1.length]) / Math.max(s1.length, s2.length);
     };
 
-    // Modificado para buscar sobre un array que traeremos de Firestore en tiempo real
     const findGuestMatch = (inputName, firebaseGuestsList) => {
         const inputWords = normalizeText(inputName);
         if (inputWords.length === 0) return null;
@@ -570,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const guestWords = normalizeText(guest.nombre);
             if (guestWords.length === 0) continue;
             
-            if (calculateLevenshtein(inputFirstName, guestWords[0]) < 0.70) continue;
+            if (calculateLevenshtein(inputFirstName, guestWords[0]) < 0.65) continue;
 
             const s1Str = inputWords.join(" "); 
             const s2Str = guestWords.join(" ");
@@ -582,11 +580,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 bestMatch = guest; 
             }
         }
-        return highestScore >= 0.65 ? { guest: bestMatch, score: highestScore } : null;
+        return highestScore >= 0.60 ? { guest: bestMatch, score: highestScore } : null;
     };
 
     // ==========================================
-    // 📋 3. GESTOR DE FORMULARIO DE CONFIRMACIÓN
+    // 📋 ENVIAR CONFIRMACIÓN A FIRESTORE
     // ==========================================
     if (rsvpForm && resultBox) {
         rsvpForm.addEventListener('submit', async function(e) {
@@ -596,7 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const rawName = nameInput.value.trim();
             const attendanceValue = attendanceSelect.value;
 
-            // Quitar clases invalid previas
             nameInput.parentElement.classList.remove('invalid');
             attendanceSelect.parentElement.classList.remove('invalid');
 
@@ -611,21 +608,21 @@ document.addEventListener('DOMContentLoaded', () => {
             resultBox.innerHTML = "";
 
             try {
-                // 1. Descargamos la lista actual de la colección "asistencias" para aplicar el algoritmo de Levenshtein
+                // 1. Descargar la lista de la colección "asistencias"
                 const querySnapshot = await getDocs(collection(db, "asistencias"));
                 const currentGuestsList = [];
                 querySnapshot.forEach((doc) => {
                     currentGuestsList.push({ id: doc.id, ...doc.data() });
                 });
 
-                // 2. Buscamos coincidencia inteligente
+                // 2. Buscar coincidencia con Levenshtein
                 const matchData = findGuestMatch(rawName, currentGuestsList);
 
                 if (matchData) {
                     const guest = matchData.guest;
                     const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
 
-                    // 3. Actualizamos de forma directa en la base de datos de Firebase
+                    // 3. Modificar directamente en la nube usando el ID del documento encontrado
                     const guestRef = doc(db, "asistencias", guest.id);
                     await updateDoc(guestRef, { estado: nuevoEstado });
 
@@ -639,8 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p>Lamentamos mucho que no puedas acompañarnos, <strong>${guest.nombre}</strong>. ¡Agradecemos tu respuesta!</p>
                         `;
                     } else {
-                        const obsText = matchData.score < 0.92 ? `<p style="color:#777; font-size:0.85rem; margin-bottom:10px;">Encontrado como: "<em>${guest.nombre}</em>"</p>` : '';
-                        
                         resultBox.innerHTML = `
                             <div id="ticketCard" class="ticket-card" style="margin-top: 15px;">
                                 <div class="ticket-header">
@@ -650,9 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="ticket-body">
                                     <p class="ticket-label">Invitado Confirmado</p>
                                     <h3 class="ticket-guest-name" style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#b89742; font-style:italic; margin-bottom:15px;">${guest.nombre}</h3>
-                                    ${obsText}
                                     <div class="ticket-meta-grid">
-                                        <div><span class="meta-label">Mesa Asignada</span><strong style="color:#b89742; font-size:1.15rem;">${guest.mesa || 'Asignada al llegar'}</strong></div>
+                                        <div><span class="meta-label">Mesa Asignada</span><strong style="color:#b89742; font-size:1.15rem;">Mesa ${guest.mesa || '—'}</strong></div>
                                         <div><span class="meta-label">Total Pases</span><strong>${guest.pases || 1} Persona(s)</strong></div>
                                     </div>
                                     <div class="qr-wrapper" style="display:flex; justify-content:center; margin-top:20px;">
@@ -667,55 +661,28 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button type="button" id="btnDownloadTicket" class="btn-download">💾 Descargar Pase</button>
                         `;
 
-                        // Generación del Código QR para la entrada
+                        // Generar QR
                         setTimeout(() => {
                             const qrContainer = document.getElementById('ticketQrcode');
                             if (qrContainer) {
                                 qrContainer.innerHTML = ""; 
-                                const textoQR = `✨ INVITACIÓN OFICIAL ✨\n` +
-                                                `Anfitriona: KIARA JIMENA\n` +
-                                                `Invitado: ${guest.nombre}\n` +
-                                                `Ubicación: ${guest.mesa || 'Por asignar'}\n` +
-                                                `Pases: ${guest.pases || 1} Persona(s)`;
-                                
+                                const textoQR = `✨ INVITACIÓN KIARA ✨\nInvitado: ${guest.nombre}\nMesa: ${guest.mesa || 'Por asignar'}\nPases: ${guest.pases || 1}`;
                                 try {
-                                    new QRCode("ticketQrcode", {
-                                        text: textoQR,
-                                        width: 140,
-                                        height: 140,
-                                        colorDark: "#1a1a1a",
-                                        colorLight: "#ffffff",
-                                        correctLevel: QRCode.CorrectLevel.M
-                                    });
-                                } catch (error) {
-                                    const qrTextEncoded = encodeURIComponent(textoQR);
-                                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${qrTextEncoded}" alt="QR" style="display:block; width:140px; height:140px;">`;
+                                    new QRCode("ticketQrcode", { text: textoQR, width: 140, height: 140 });
+                                } catch (e) {
+                                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(textoQR)}" style="width:140px; height:140px;">`;
                                 }
                             }
                         }, 250);
-
-                        // Descarga del pase en formato de imagen
-                        document.body.addEventListener('click', function handler(e) {
-                            if (e.target && e.target.id === 'btnDownloadTicket') {
-                                html2canvas(document.getElementById('ticketCard'), { scale: 2, useCORS: true }).then(canvas => {
-                                    const link = document.createElement('a');
-                                    link.href = canvas.toDataURL('image/png');
-                                    link.download = `Pase_${guest.nombre.replace(/\s+/g, '_')}.png`;
-                                    link.click();
-                                });
-                                document.body.removeEventListener('click', handler); // Limpiar listener
-                            }
-                        });
                     }
                 } else {
                     resultBox.className = "result-card error";
                     resultBox.style.display = "block";
                     resultBox.innerHTML = `<div class="result-icon">❌</div><h3>No encontrado</h3><p>No encontramos ninguna coincidencia. Por favor, revisa cómo escribiste tu nombre.</p>`;
                 }
-
             } catch (err) {
-                console.error("Error en proceso RSVP:", err);
-                alert("Ocurrió un error al procesar tu confirmación. Revisa la conexión.");
+                console.error(err);
+                alert("Error de conexión al guardar.");
             } finally {
                 if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
                 resultBox.scrollIntoView({ behavior: 'smooth' });
@@ -724,21 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 🔒 4. LÓGICA VISTA DE ADMINISTRADOR
+    // 🔒 PANEL ADMINISTRATIVO (CON CONTRASEÑA DE TU ARCHIVO)
     // ==========================================
-    // NOTA: Cambiada a la contraseña real de tu archivo original
-    const ADMIN_CREDENTIALS = {
-        email: "admineventokiara@gmail.com",
-        password: "Bautizokiara152406" 
-    };
-
-    if (btnToggleAdmin) {
-        btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
-    }
-
-    if (btnCancelLogin) {
-        btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
-    }
+    if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
+    if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
 
     if (loginAdminForm) {
         loginAdminForm.addEventListener('submit', (e) => {
@@ -746,16 +702,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const inputEmail = document.getElementById('adminEmail').value.trim();
             const inputPassword = document.getElementById('adminPassword').value;
 
-            if (inputEmail === ADMIN_CREDENTIALS.email && inputPassword === ADMIN_CREDENTIALS.password) {
+            // Usa la contraseña real de tu archivo original
+            if (inputEmail === "admineventokiara@gmail.com" && inputPassword === "Bautizokiara152406") {
                 adminLoginModal.style.display = "none";
                 mainViewContainer.style.display = "none";
                 adminViewContainer.style.display = "block";
                 loginAdminForm.reset();
-                
-                // Iniciamos la escucha en tiempo real de toda la base de datos para el Dashboard
-                activarEscuchaPanelAdmin();
+                activarEscuchaPanelAdmin(); // Cargar Dashboard en tiempo real
             } else {
-                alert("❌ Correo o contraseña incorrectos. Acceso denegado.");
+                alert("❌ Credenciales incorrectas.");
             }
         });
     }
@@ -768,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 📊 5. PANEL DE CONTROL (TIEMPO REAL FIRESTORE)
+    // 📊 ESCUCHADOR EN VIVO PARA EL DASHBOARD
     // ==========================================
     function activarEscuchaPanelAdmin() {
         onSnapshot(collection(db, "asistencias"), (snapshot) => {
@@ -778,21 +733,18 @@ document.addEventListener('DOMContentLoaded', () => {
             snapshot.forEach((guestDoc) => {
                 const guest = guestDoc.data();
                 const pasesItem = parseInt(guest.pases) || 0;
-
-                let statusCircle = "";
-                let statusText = "PENDIENTE";
+                let statusCircle = ""; let statusText = "PENDIENTE";
 
                 if (guest.estado === 'confirmado') {
-                    statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#2ecc71; border-radius:50%; margin-right:10px; box-shadow: 0 0 6px #2ecc71; border: 1px solid #27ae60;"></span>`;
+                    statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#2ecc71; border-radius:50%; margin-right:10px;"></span>`;
                     statusText = "SÍ ASISTIRÁ";
-                    countYes++;
-                    totalPasses += pasesItem;
+                    countYes++; totalPasses += pasesItem;
                 } else if (guest.estado === 'no asistirá') {
-                    statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#e74c3c; border-radius:50%; margin-right:10px; box-shadow: 0 0 6px #e74c3c; border: 1px solid #c0392b;"></span>`;
+                    statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#e74c3c; border-radius:50%; margin-right:10px;"></span>`;
                     statusText = "NO ASISTIRÁ";
                     countNo++;
                 } else {
-                    statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#ffffff; border:2px solid #cbd5e1; border-radius:50%; margin-right:10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);"></span>`;
+                    statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#cbd5e1; border-radius:50%; margin-right:10px;"></span>`;
                     statusText = "PENDIENTE";
                     countPending++;
                 }
@@ -801,14 +753,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.style.borderBottom = "1px solid #e2e8f0";
                 tr.innerHTML = `
                     <td style="padding:12px; display:flex; align-items:center; font-size:0.8rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
-                    <td style="padding:12px; font-weight:600; color:#333;">${guest.nombre}</td>
-                    <td style="padding:12px; color:#555;">${guest.mesa || '—'}</td>
+                    <td style="padding:12px; font-weight:600;">${guest.nombre}</td>
+                    <td style="padding:12px;">Mesa ${guest.mesa || '—'}</td>
                     <td style="padding:12px; font-weight:600; color:#b89742;">${pasesItem}</td>
                 `;
                 adminGuestTableBody.appendChild(tr);
             });
 
-            // Actualizar los widgets estadísticos del HTML
             document.getElementById('statYes').innerText = countYes;
             document.getElementById('statNo').innerText = countNo;
             document.getElementById('statPending').innerText = countPending;
@@ -816,45 +767,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // ⏰ 6. EFECTOS VISUALES Y CUENTA REGRESIVA
-    // ==========================================
-    const bg = document.getElementById('animatedBg');
-    if (bg) {
-        for (let i = 0; i < 15; i++) {
-            const p = document.createElement('div'); p.classList.add('particle');
-            p.style.width = p.style.height = `${Math.random() * 15 + 6}px`;
-            p.style.left = `${Math.random() * 100}%`; p.style.animationDelay = `${Math.random() * 5}s`;
-            bg.appendChild(p);
+    // Descarga de tickets interactiva
+    document.body.addEventListener('click', function (e) {
+        if (e.target && e.target.id === 'btnDownloadTicket') {
+            const guestName = document.querySelector('.ticket-guest-name').innerText;
+            html2canvas(document.getElementById('ticketCard'), { scale: 2, useCORS: true }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `Pase_${guestName.replace(/\s+/g, '_')}.png`;
+                link.click();
+            });
         }
-    }
+    });
 
-    // Forzar visibilidad de las secciones con fade-in-up
-    const animatedElements = document.querySelectorAll('.fade-in-up');
-    const contentSection = document.querySelector('.content-section');
-    
-    const checkScroll = () => {
-        animatedElements.forEach(el => { el.classList.add('visible'); });
-    };
-
-    setTimeout(checkScroll, 100);
-    if (contentSection) { contentSection.addEventListener('scroll', checkScroll); }
-    window.addEventListener('scroll', checkScroll);
-
-    // Cuenta regresiva estable (Fecha: 13 de Junio de 2026)
+    // Contador regresivo
     const eventDate = new Date(2026, 5, 13, 10, 0, 0).getTime();
     setInterval(() => {
         const diff = eventDate - new Date().getTime();
         if (diff > 0) {
-            const daysEl = document.getElementById('days');
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-
-            if (daysEl) daysEl.innerText = String(Math.floor(diff / (1000*60*60*24))).padStart(2, '0');
-            if (hoursEl) hoursEl.innerText = String(Math.floor((diff % (1000*60*60*24)) / (1000*60*60))).padStart(2, '0');
-            if (minutesEl) minutesEl.innerText = String(Math.floor((diff % (1000*60*60)) / (1000*60))).padStart(2, '0');
-            if (secondsEl) secondsEl.innerText = String(Math.floor((diff % (1000*60)) / 1000).padStart(2, '0'));
+            document.getElementById('days').innerText = String(Math.floor(diff / (1000*60*60*24))).padStart(2, '0');
+            document.getElementById('hours').innerText = String(Math.floor((diff % (1000*60*60*24)) / (1000*60*60))).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(Math.floor((diff % (1000*60*60)) / (1000*60))).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(Math.floor((diff % (1000*60)) / 1000)).padStart(2, '0');
         }
     }, 1000);
 });
