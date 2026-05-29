@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminGuestTableBody = document.getElementById('adminGuestTableBody');
 
     // ==========================================
-    // 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE
+    // 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE (LEVENSHTEIN)
     // ==========================================
     const NICKNAMES = {
         "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultBox.innerHTML = "";
 
             try {
-                // Descarga la lista de la colección correcta "asistencias"
+                // Jalamos la lista en tiempo real directamente de la colección "asistencias"
                 const querySnapshot = await getDocs(collection(db, "asistencias"));
                 const currentGuestsList = [];
                 querySnapshot.forEach((doc) => {
@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const guest = matchData.guest;
                     const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
 
-                    // Sincroniza directamente en la nube usando el ID del documento
+                    // Actualizamos el estado del documento usando su ID real de Firestore
                     const guestRef = doc(db, "asistencias", guest.id);
                     await updateDoc(guestRef, { estado: nuevoEstado });
 
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button type="button" id="btnDownloadTicket" class="btn-download">💾 Descargar Pase</button>
                         `;
 
-                        // Generar el QR dinámicamente
+                        // Generación dinámica del código QR
                         setTimeout(() => {
                             const qrContainer = document.getElementById('ticketQrcode');
                             if (qrContainer) {
@@ -681,8 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultBox.innerHTML = `<div class="result-icon">❌</div><h3>No encontrado</h3><p>No encontramos ninguna coincidencia. Por favor, revisa cómo escribiste tu nombre.</p>`;
                 }
             } catch (err) {
-                console.error("Error al procesar RSVP:", err);
-                alert("Error de conexión al guardar.");
+                console.error("Error en el proceso RSVP:", err);
+                alert("Error de conexión al procesar la confirmación.");
             } finally {
                 if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
                 resultBox.scrollIntoView({ behavior: 'smooth' });
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 🔒 PANEL ADMINISTRATIVO
+    // 🔒 LOGIN MODO ADMINISTRADOR (LOCAL REPARADO)
     // ==========================================
     if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
     if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
@@ -707,9 +707,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 mainViewContainer.style.display = "none";
                 adminViewContainer.style.display = "block";
                 loginAdminForm.reset();
-                activarEscuchaPanelAdmin(); // Activa el escuchador en tiempo real
+                
+                // Activamos la escucha en tiempo real de la tabla
+                activarEscuchaPanelAdmin(); 
             } else {
-                alert("❌ Credenciales incorrectas.");
+                alert("❌ Credenciales incorrectas. Acceso denegado.");
             }
         });
     }
@@ -722,9 +724,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 📊 ESCUCHADOR EN TIEMPO REAL (COLECCIÓN "asistencias")
+    // 📊 ESCUCHADOR EN TIEMPO REAL (REAL-TIME SNAPSHOT)
     // ==========================================
     function activarEscuchaPanelAdmin() {
+        // onSnapshot hace que si alguien confirma desde su celular, la tabla del admin cambie sola al instante sin recargar la página
         onSnapshot(collection(db, "asistencias"), (snapshot) => {
             let countYes = 0; let countNo = 0; let countPending = 0; let totalPasses = 0;
             adminGuestTableBody.innerHTML = ""; 
@@ -752,13 +755,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.style.borderBottom = "1px solid #e2e8f0";
                 tr.innerHTML = `
                     <td style="padding:12px; display:flex; align-items:center; font-size:0.8rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
-                    <td style="padding:12px; font-weight:600;">${guest.nombre || 'Sin nombre'}</td>
-                    <td style="padding:12px;">${guest.mesa || '—'}</td>
+                    <td style="padding:12px; font-weight:600; color:#333;">${guest.nombre || 'Sin nombre'}</td>
+                    <td style="padding:12px; color:#555;">${guest.mesa || '—'}</td>
                     <td style="padding:12px; font-weight:600; color:#b89742;">${pasesItem}</td>
                 `;
                 adminGuestTableBody.appendChild(tr);
             });
 
+            // Actualizar tarjetas de contadores superiores
             document.getElementById('statYes').innerText = countYes;
             document.getElementById('statNo').innerText = countNo;
             document.getElementById('statPending').innerText = countPending;
@@ -766,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Descarga de tickets interactiva
+    // Descarga de pases interactivos
     document.body.addEventListener('click', function (e) {
         if (e.target && e.target.id === 'btnDownloadTicket') {
             const guestName = document.querySelector('.ticket-guest-name').innerText;
