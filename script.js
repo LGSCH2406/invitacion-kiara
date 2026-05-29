@@ -565,6 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let highestScore = 0;
 
         for (const guest of firebaseGuestsList) {
+            if (!guest.nombre) continue; // Evita errores si falta el campo nombre en Firestore
             const guestWords = normalizeText(guest.nombre);
             if (guestWords.length === 0) continue;
             
@@ -584,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // 📋 ENVIAR CONFIRMACIÓN A FIRESTORE
+    // 📋 ENVIAR CONFIRMACIÓN A FIRESTORE ("asistencias")
     // ==========================================
     if (rsvpForm && resultBox) {
         rsvpForm.addEventListener('submit', async function(e) {
@@ -608,21 +609,20 @@ document.addEventListener('DOMContentLoaded', () => {
             resultBox.innerHTML = "";
 
             try {
-                // 1. Descargar la lista de la colección "asistencias"
+                // Descargar la lista de la colección correcta "asistencias"
                 const querySnapshot = await getDocs(collection(db, "asistencias"));
                 const currentGuestsList = [];
                 querySnapshot.forEach((doc) => {
                     currentGuestsList.push({ id: doc.id, ...doc.data() });
                 });
 
-                // 2. Buscar coincidencia con Levenshtein
                 const matchData = findGuestMatch(rawName, currentGuestsList);
 
                 if (matchData) {
                     const guest = matchData.guest;
                     const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
 
-                    // 3. Modificar directamente en la nube usando el ID del documento encontrado
+                    // Modificar directamente en la nube usando el ID del documento
                     const guestRef = doc(db, "asistencias", guest.id);
                     await updateDoc(guestRef, { estado: nuevoEstado });
 
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error(err);
                 alert("Error de conexión al guardar.");
-            } finally {
+            } declare {
                 if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
                 resultBox.scrollIntoView({ behavior: 'smooth' });
             }
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 🔒 PANEL ADMINISTRATIVO (CON CONTRASEÑA DE TU ARCHIVO)
+    // 🔒 PANEL ADMINISTRATIVO
     // ==========================================
     if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
     if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
@@ -702,13 +702,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const inputEmail = document.getElementById('adminEmail').value.trim();
             const inputPassword = document.getElementById('adminPassword').value;
 
-            // Usa la contraseña real de tu archivo original
             if (inputEmail === "admineventokiara@gmail.com" && inputPassword === "Bautizokiara152406") {
                 adminLoginModal.style.display = "none";
                 mainViewContainer.style.display = "none";
                 adminViewContainer.style.display = "block";
                 loginAdminForm.reset();
-                activarEscuchaPanelAdmin(); // Cargar Dashboard en tiempo real
+                activarEscuchaPanelAdmin(); // Escucha la colección en vivo
             } else {
                 alert("❌ Credenciales incorrectas.");
             }
@@ -723,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 📊 ESCUCHADOR EN VIVO PARA EL DASHBOARD
+    // 📊 ESCUCHADOR EN VIVO ("asistencias")
     // ==========================================
     function activarEscuchaPanelAdmin() {
         onSnapshot(collection(db, "asistencias"), (snapshot) => {
@@ -753,8 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.style.borderBottom = "1px solid #e2e8f0";
                 tr.innerHTML = `
                     <td style="padding:12px; display:flex; align-items:center; font-size:0.8rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
-                    <td style="padding:12px; font-weight:600;">${guest.nombre}</td>
-                    <td style="padding:12px;">Mesa ${guest.mesa || '—'}</td>
+                    <td style="padding:12px; font-weight:600;">${guest.nombre || 'Sin nombre'}</td>
+                    <td style="padding:12px;">${guest.mesa || '—'}</td>
                     <td style="padding:12px; font-weight:600; color:#b89742;">${pasesItem}</td>
                 `;
                 adminGuestTableBody.appendChild(tr);
