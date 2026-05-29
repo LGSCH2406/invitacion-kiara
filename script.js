@@ -513,7 +513,7 @@ const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ELEMENTOS DEL DOM ---
+    // --- ELEMENTOS DEL DOM UNIFICADOS ---
     const rsvpForm = document.getElementById('rsvpForm');
     const nameInput = document.getElementById('guestName');
     const attendanceSelect = document.getElementById('attendance');
@@ -565,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let highestScore = 0;
 
         for (const guest of firebaseGuestsList) {
-            if (!guest.nombre) continue; // Evita errores si falta el campo nombre en Firestore
+            if (!guest.nombre) continue; 
             const guestWords = normalizeText(guest.nombre);
             if (guestWords.length === 0) continue;
             
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ==========================================
-    // 📋 ENVIAR CONFIRMACIÓN A FIRESTORE ("asistencias")
+    // 📋 PROCESO RSVP CON FIRESTORE ("asistencias")
     // ==========================================
     if (rsvpForm && resultBox) {
         rsvpForm.addEventListener('submit', async function(e) {
@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
             resultBox.innerHTML = "";
 
             try {
-                // Descargar la lista de la colección correcta "asistencias"
+                // Descarga la lista de la colección correcta "asistencias"
                 const querySnapshot = await getDocs(collection(db, "asistencias"));
                 const currentGuestsList = [];
                 querySnapshot.forEach((doc) => {
@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const guest = matchData.guest;
                     const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
 
-                    // Modificar directamente en la nube usando el ID del documento
+                    // Sincroniza directamente en la nube usando el ID del documento
                     const guestRef = doc(db, "asistencias", guest.id);
                     await updateDoc(guestRef, { estado: nuevoEstado });
 
@@ -646,7 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <p class="ticket-label">Invitado Confirmado</p>
                                     <h3 class="ticket-guest-name" style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#b89742; font-style:italic; margin-bottom:15px;">${guest.nombre}</h3>
                                     <div class="ticket-meta-grid">
-                                        <div><span class="meta-label">Mesa Asignada</span><strong style="color:#b89742; font-size:1.15rem;">Mesa ${guest.mesa || '—'}</strong></div>
+                                        <div><span class="meta-label">Mesa Asignada</span><strong style="color:#b89742; font-size:1.15rem;">${guest.mesa || 'Por asignar'}</strong></div>
                                         <div><span class="meta-label">Total Pases</span><strong>${guest.pases || 1} Persona(s)</strong></div>
                                     </div>
                                     <div class="qr-wrapper" style="display:flex; justify-content:center; margin-top:20px;">
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button type="button" id="btnDownloadTicket" class="btn-download">💾 Descargar Pase</button>
                         `;
 
-                        // Generar QR
+                        // Generar el QR dinámicamente
                         setTimeout(() => {
                             const qrContainer = document.getElementById('ticketQrcode');
                             if (qrContainer) {
@@ -681,9 +681,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     resultBox.innerHTML = `<div class="result-icon">❌</div><h3>No encontrado</h3><p>No encontramos ninguna coincidencia. Por favor, revisa cómo escribiste tu nombre.</p>`;
                 }
             } catch (err) {
-                console.error(err);
+                console.error("Error al procesar RSVP:", err);
                 alert("Error de conexión al guardar.");
-            } declare {
+            } finally {
                 if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
                 resultBox.scrollIntoView({ behavior: 'smooth' });
             }
@@ -707,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mainViewContainer.style.display = "none";
                 adminViewContainer.style.display = "block";
                 loginAdminForm.reset();
-                activarEscuchaPanelAdmin(); // Escucha la colección en vivo
+                activarEscuchaPanelAdmin(); // Activa el escuchador en tiempo real
             } else {
                 alert("❌ Credenciales incorrectas.");
             }
@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 📊 ESCUCHADOR EN VIVO ("asistencias")
+    // 📊 ESCUCHADOR EN TIEMPO REAL (COLECCIÓN "asistencias")
     // ==========================================
     function activarEscuchaPanelAdmin() {
         onSnapshot(collection(db, "asistencias"), (snapshot) => {
@@ -779,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Contador regresivo
+    // Contador regresivo estable (Junio 13, 2026)
     const eventDate = new Date(2026, 5, 13, 10, 0, 0).getTime();
     setInterval(() => {
         const diff = eventDate - new Date().getTime();
@@ -791,90 +791,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, 1000);
 });
-// ========================================================
-// 📋 GESTOR DE FORMULARIO DE CONFIRMACIÓN (ACTUALIZADO)
-// ========================================================
-const rsvpForm = document.getElementById('rsvpForm');
-const nameInput = document.getElementById('guestName');
-const attendanceSelect = document.getElementById('attendance');
-const resultBox = document.getElementById('verificationResult');
-
-if (rsvpForm && resultBox) {
-    rsvpForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        // Validaciones iniciales de inputs...
-        
-        const btnConfirm = rsvpForm.querySelector('.btn-confirm');
-        if(btnConfirm) { btnConfirm.disabled = true; btnConfirm.innerText = 'Procesando...'; }
-
-        try {
-            const matchData = await findGuestMatch(nameInput.value.trim());
-
-            if (matchData) {
-                const attendanceValue = attendanceSelect.value;
-                
-                // Actualizamos el estado directamente en Firebase usando su ID de documento
-                const guestRef = doc(db, "invitados", matchData.id);
-                await updateDoc(guestRef, { status: attendanceValue });
-
-                if (attendanceValue === "no") {
-                    // Renderizar tarjeta de "Lamentamos que no asistas"...
-                } else {
-                    // Renderizar tu "Pase Digital Oficial" con QR e html2canvas...
-                }
-            } else {
-                // Renderizar tarjeta de "No encontrado"...
-            }
-        } catch (error) {
-            console.error("Error al confirmar:", error);
-        } finally {
-            if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
-        }
-    });
-}
-
-// ========================================================
-// 🔒 PANEL DE ADMINISTRADOR CON FIREBASE AUTHENTICATION
-// ========================================================
-const loginAdminForm = document.getElementById('loginAdminForm');
-
-if (loginAdminForm) {
-    loginAdminForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const inputEmail = document.getElementById('adminEmail').value.trim();
-        const inputPassword = document.getElementById('adminPassword').value;
-
-        try {
-            // Validación real contra Firebase Auth
-            await signInWithEmailAndPassword(auth, inputEmail, inputPassword);
-            
-            document.getElementById('adminLoginModal').style.display = "none";
-            document.getElementById('mainViewContainer').style.display = "none";
-            document.getElementById('adminViewContainer').style.display = "block";
-            loginAdminForm.reset();
-            
-            // Llamamos a renderizar los datos del panel
-            renderAdminData();
-        } catch (error) {
-            alert("❌ Correo o contraseña incorrectos. Acceso denegado.");
-        }
-    });
-}
-
-// FUNCIÓN PARA RENDERIZAR EL PANEL TRAENDO LOS DATOS DE FIRESTORE
-const renderAdminData = async () => {
-    const adminGuestTableBody = document.getElementById('adminGuestTableBody');
-    adminGuestTableBody.innerHTML = "";
-    
-    let countYes = 0; let countNo = 0; let countPending = 0; let totalPasses = 0;
-
-    const querySnapshot = await getDocs(collection(db, "invitados"));
-    
-    querySnapshot.forEach((doc) => {
-        const guest = doc.data();
-        // Mapeas el estado, sumas contadores y creas los elementos 'tr' exactamente 
-        // como lo hacías en tu código original, pero leyendo el objeto 'guest' de Firestore.
-    });
-
-    // Actualizas los textos de los elementos de estadísticas (statYes, statNo, etc.)
-};
