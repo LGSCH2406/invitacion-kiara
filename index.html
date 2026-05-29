@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Nuestra Celebración Especial!</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    
+    <button id="btnToggleAdmin" class="btn-admin-floating" title="Modo Administrador">🔒 MODO ADMIN</button>
+
+    <div class="animated-bg" id="animatedBg"></div>
+
+    <!-- VISTA PRINCIPAL: INVITACIÓN -->
+    <div class="main-wrapper" id="mainViewContainer">
+        
+        <header class="hero-section text-animate">
+            <div class="event-badge">Doble Celebración</div>
+            <h1 class="main-title">Bautizo & Cumpleaños</h1>
+            <p class="host-title" style="font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #b89742; font-style: italic; font-weight: 600; margin-top: 0; margin-bottom: 20px; letter-spacing: 1px;">
+                de nuestra hermosa anfitriona:<br>
+                <span style="font-family: 'Montserrat', sans-serif; font-style: normal; font-size: 1.3rem; color: #1a1a1a; display: block; margin-top: 5px; font-weight: 600;">KIARA JIMENA SALDAÑA CHALÁN</span>
+            </p>
+            <p class="subtitle">Acompáñanos a celebrar este día tan especial y lleno de bendiciones.</p>
+            
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <span id="days">00</span>
+                    <small>Días</small>
+                </div>
+                <div class="countdown-item">
+                    <span id="hours">00</span>
+                    <small>Horas</small>
+                </div>
+                <div class="countdown-item">
+                    <span id="minutes">00</span>
+                    <small>Min.</small>
+                </div>
+                <div class="countdown-item">
+                    <span id="seconds">00</span>
+                    <small>Seg.</small>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-section">
+            
+            <section class="event-details-section fade-in-up">
+                <div class="wedding-info-container">
+                    <div class="info-block main-date">
+                        <div class="info-icon">📅</div>
+                        <h3 class="section-subtitle">Fecha & Hora</h3>
+                        <p class="highlight-text">Sábado, 13 de Junio</p>
+                        <p class="sub-text">10:00 AM</p>
+                    </div>
+                    <div class="elegant-separator"><span class="diamond"></span></div>
+                    <div class="honor-vertical-block">
+                        <h4 class="honor-title">Con la bendición de sus Padres</h4>
+                        <p class="name-text">Jorge Luis Saldaña Díaz</p>
+                        <p class="name-text">Isabel Chalan Llanos</p>
+                    </div>
+                    <div class="elegant-separator mini"><span class="diamond"></span></div>
+                    <div class="honor-vertical-block">
+                        <h4 class="honor-title">Sus Padrinos</h4>
+                        <p class="name-text">Carlos Orlando Chalan Llanos</p>
+                        <p class="name-text">Cory Cacho Briones</p>
+                    </div>
+                    <div class="elegant-separator"><span class="diamond"></span></div>
+                    <div class="info-block location-block">
+                        <div class="info-icon">📍</div>
+                        <h3 class="section-subtitle">Lugar de Recepción</h3>
+                        <p class="highlight-text">Local de Eventos Castope</p>
+                        <p class="sub-text">Tartar, Cajamarca</p>
+                        <a href="https://maps.app.goo.gl/G3o1AsPvubEdrsAY8" target="_blank" class="btn-location">Ver en Google Maps 🗺️</a>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <section class="rsvp-section fade-in-up">
+                <h2>Confirmación de Asistencia</h2>
+                <p class="rsvp-notice">Por favor, indícanos si podrás acompañarnos seleccionando tu estado de asistencia e ingresando tu nombre completo.</p>
+                
+                <form id="rsvpForm" novalidate>
+                    <div class="input-group">
+                        <label for="guestName">Nombre y Apellido del Invitado</label>
+                        <input type="text" id="guestName" required placeholder="Ej. Andres Rodas o Nicool Jambo" autocomplete="off">
+                        <span class="error-message">Por favor, ingresa un nombre para realizar la búsqueda.</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="attendance">¿Podrás acompañarnos?</label>
+                        <select id="attendance" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.95rem; background-color: #fff; color: #333; outline: none;">
+                            <option value="" disabled selected>Selecciona una opción...</option>
+                            <option value="yes">🎉 Sí, asistiré con gusto</option>
+                            <option value="no">😔 Lo siento, no podré ir</option>
+                        </select>
+                        <span class="error-message">Por favor, selecciona una opción de asistencia.</span>
+                    </div>
+
+                    <button type="submit" class="btn-confirm" style="margin-top: 10px;">Enviar Confirmación</button>
+                </form>
+
+                <div id="verificationResult" class="result-card" style="display: none; margin-top: 30px;"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- VISTA SECUNDARIA: PANEL DE CONTROL DE ADMINISTRADOR -->
+    <div class="admin-wrapper" id="adminViewContainer" style="display: none; max-width: 900px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); font-family: 'Montserrat', sans-serif;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">
+            <h2 style="font-family: 'Playfair Display', serif; color: #1a1a1a; margin: 0;">📊 Panel de Control General</h2>
+            <button id="btnCloseAdmin" style="background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Volver a Invitación</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px;">
+            <div style="background: #f8f9fa; border-left: 5px solid #2ecc71; padding: 15px; border-radius: 6px;">
+                <span style="font-size: 0.85rem; color: #666; font-weight: 600;">SÍ ASISTIRÁN</span>
+                <h3 id="statYes" style="margin: 5px 0 0 0; font-size: 1.6rem; color: #2ecc71;">0</h3>
+            </div>
+            <div style="background: #f8f9fa; border-left: 5px solid #e74c3c; padding: 15px; border-radius: 6px;">
+                <span style="font-size: 0.85rem; color: #666; font-weight: 600;">NO ASISTIRÁN</span>
+                <h3 id="statNo" style="margin: 5px 0 0 0; font-size: 1.6rem; color: #e74c3c;">0</h3>
+            </div>
+            <div style="background: #f8f9fa; border-left: 5px solid #bdc3c7; padding: 15px; border-radius: 6px;">
+                <span style="font-size: 0.85rem; color: #666; font-weight: 600;">PENDIENTES</span>
+                <h3 id="statPending" style="margin: 5px 0 0 0; font-size: 1.6rem; color: #7f8c8d;">0</h3>
+            </div>
+            <div style="background: #eef2f7; border-left: 5px solid #b89742; padding: 15px; border-radius: 6px;">
+                <span style="font-size: 0.85rem; color: #666; font-weight: 600;">PASES TOTALES (CONFIRMADOS)</span>
+                <h3 id="statPasses" style="margin: 5px 0 0 0; font-size: 1.6rem; color: #b89742;">0</h3>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: #1a1a1a; color: white;">
+                        <th style="padding: 12px; border-radius: 6px 0 0 0;">Estado</th>
+                        <th style="padding: 12px;">Invitado</th>
+                        <th style="padding: 12px;">Mesa</th>
+                        <th style="padding: 12px; border-radius: 0 6px 0 0;">Pases</th>
+                    </tr>
+                </thead>
+                <tbody id="adminGuestTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL VENTANA DE LOGIN PARA EL MODO ADMINISTRADOR -->
+    <div id="adminLoginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <div style="background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-family: 'Montserrat', sans-serif; margin: 20px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 2.5rem;">🔒</span>
+                <h3 style="font-family: 'Playfair Display', serif; margin: 10px 0 5px 0; color: #1a1a1a;">Acceso Administrativo</h3>
+                <p style="font-size: 0.85rem; color: #666; margin: 0;">Introduce tus credenciales para continuar</p>
+            </div>
+            <form id="loginAdminForm">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #333;">Correo Electrónico</label>
+                    <input type="email" id="adminEmail" required placeholder="admineventokiara@gmail.com" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; box-sizing: border-box;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #333;">Contraseña</label>
+                    <input type="password" id="adminPassword" required placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" id="btnCancelLogin" style="flex: 1; background: #e2e8f0; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #4a5568;">Cancelar</button>
+                    <button type="submit" style="flex: 1; background: #b89742; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; color: white;">Ingresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+        
+</body>
+</html>
