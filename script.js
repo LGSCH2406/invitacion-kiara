@@ -499,14 +499,15 @@ document.addEventListener('DOMContentLoaded', () => {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// COPIA AQUÍ LAS CREDENCIALES EXACTAS DE TU PROYECTO DE FIREBASE
+
+// REEMPLAZA ESTO CON TUS DATOS REALES DE LA CONSOLA DE FIREBASE
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_AUTH_DOMAIN",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_STORAGE_BUCKET",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyA1X...", 
+    authDomain: "tu-evento-app.firebaseapp.com",
+    projectId: "tu-evento-app",
+    storageBucket: "tu-evento-app.appspot.com",
+    messagingSenderId: "85214796325",
+    appId: "1:85214796325:web:a1b2c3d4e5f6"
 };
 
 // Inicializar Firebase y Firestore Reference
