@@ -493,294 +493,323 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-// ========================================================
-// 🔥 CONFIGURACIÓN E IMPORTACIONES DE FIREBASE
-// ========================================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+// ==========================================
+// 🛠️ 1. IMPORTACIONES DE CONFIGURACIÓN FIREBASE
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// COPIA AQUÍ LAS CREDENCIALES EXACTAS DE TU PROYECTO DE FIREBASE
 const firebaseConfig = {
-    apiKey: "AIzaSyASm2GfC5IzEOucWy1vm9roYIMO5SNJyYQ",
-    authDomain: "bautizo-kiara.firebaseapp.com",
-    projectId: "bautizo-kiara",
-    storageBucket: "bautizo-kiara.firebasestorage.app",
-    messagingSenderId: "538295578367",
-    appId: "1:538295578367:web:913884817710beb1b026ca"
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    appId: "TU_APP_ID"
 };
 
+// Inicializar Firebase y Firestore Reference
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const invitadosCollection = collection(db, "invitados");
 
-// ==========================================
-// 🧠 ALGORITMO DE COMPARACIÓN INTELIGENTE
-// ==========================================
-const NICKNAMES = {
-    "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
-};
-
-const normalizeText = (text) => {
-    if (!text) return [];
-    let clean = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").trim();
-    let words = clean.split(/\s+/);
-    return words.map(word => NICKNAMES[word] || word).filter(w => w !== "");
-};
-
-const calculateLevenshtein = (s1, s2) => {
-    if (s1 === s2) return 1.0;
-    const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null));
-    for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
-    for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
-
-    for (let j = 1; j <= s2.length; j += 1) {
-        for (let i = 1; i <= s1.length; i += 1) {
-            const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
-            track[j][i] = Math.min(track[j][i - 1] + 1, track[j - 1][i] + 1, track[j - 1][i - 1] + indicator);
-        }
-    }
-    return (Math.max(s1.length, s2.length) - track[s2.length][s1.length]) / Math.max(s1.length, s2.length);
-};
-
-const findGuestMatch = (inputName, firebaseGuestsList) => {
-    const inputWords = normalizeText(inputName);
-    if (inputWords.length === 0) return null;
-    const inputFirstName = inputWords[0];
-    let bestMatch = null; 
-    let highestScore = 0;
-
-    for (const guest of firebaseGuestsList) {
-        if (!guest.nombre) continue; 
-        const guestWords = normalizeText(guest.nombre);
-        if (guestWords.length === 0) continue;
-        
-        if (calculateLevenshtein(inputFirstName, guestWords[0]) < 0.65) continue;
-
-        const s1Str = inputWords.join(" "); 
-        const s2Str = guestWords.join(" ");
-        let score = calculateLevenshtein(s1Str, s2Str);
-        if (s2Str.includes(s1Str) || s1Str.includes(s2Str)) score = Math.max(score, 0.85);
-
-        if (score > highestScore) { 
-            highestScore = score; 
-            bestMatch = guest; 
-        }
-    }
-    return highestScore >= 0.60 ? { guest: bestMatch, score: highestScore } : null;
-};
-
-// ==========================================
-// 🚀 INICIALIZACIÓN DE LA APLICACIÓN
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-
-    const rsvpForm = document.getElementById('rsvpForm');
-    const nameInput = document.getElementById('guestName');
-    const attendanceSelect = document.getElementById('attendance');
-    const resultBox = document.getElementById('verificationResult');
-
-    const btnToggleAdmin = document.getElementById('btnToggleAdmin');
-    const btnCloseAdmin = document.getElementById('btnCloseAdmin');
-    const btnCancelLogin = document.getElementById('btnCancelLogin');
-    const adminLoginModal = document.getElementById('adminLoginModal');
-    const loginAdminForm = document.getElementById('loginAdminForm');
+document.addEventListener('DOMContentLoaded', async () => {
     
-    const mainViewContainer = document.getElementById('mainViewContainer');
-    const adminViewContainer = document.getElementById('adminViewContainer');
-    const adminGuestTableBody = document.getElementById('adminGuestTableBody');
+    // CLAVE DE ACCESO PARA EL MODO ADMIN
+    const ADMIN_PASSWORD = "1234";
 
-    // 📋 PROCESO RSVP CON FIREBASE
-    if (rsvpForm && resultBox) {
-        rsvpForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+    // Base de datos reactiva que se sincronizará con Firestore
+    let GUEST_DATABASE = [];
 
-            let isFormValid = true;
-            const rawName = nameInput.value.trim();
-            const attendanceValue = attendanceSelect.value;
+    // ========================================================
+    // 🔄 FUNCION PARA CARGAR O MIGRAR DATOS DESDE FIRESTORE
+    // ========================================================
+    async function loadGuestsFromFirestore() {
+        try {
+            const querySnapshot = await getDocs(invitadosCollection);
+            
+            // Si Firestore está vacío, migramos tu lista inicial por única vez
+            if (querySnapshot.empty) {
+                console.log("Sincronizando lista inicial por primera vez a Firestore...");
+                const INITIAL_GUEST_DATABASE = [
+                    { name: "Kory Cacho", passes: 13, table: "Mesa 12 Y 13" },
+                    { name: "Andres Rodas", passes: 4, table: "Mesa 11" },
+                    { name: "Angel Abundio Correa", passes: 1, table: "Mesa 11" },
+                    { name: "Briseño Gallardo Marjhori", passes: 1, table: "Mesa 4" },
+                    { name: "Alva Montoya Jheremy", passes: 1, table: "Mesa 4" },
+                    { name: "Katherine Chalan Briones", passes: 1, table: "Mesa 4" },
+                    { name: "Wilman Cotrina", passes: 3, table: "Mesa 18" },
+                    { name: "Ever Garcia Machuca", passes: 3, table: "Mesa 18" },
+                    { name: "Hector Saldaña Diaz", passes: 3, table: "Mesa 14" },
+                    { name: "Rodrigo Saldaña Abanto", passes: 1, table: "Mesa 14" },
+                    { name: "Luis Fernando Saldaña Diaz", passes: 4, table: "Mesa 14" },
+                    { name: "Yolanda Diaz Terrones", passes: 1, table: "Mesa 14" }
+                ];
 
-            // Limpieza de estados de error de tus clases personalizadas
-            nameInput.classList.remove('invalid');
-            attendanceSelect.classList.remove('invalid');
-
-            const errName = nameInput.parentElement.querySelector('.error-message');
-            const errSelect = attendanceSelect.parentElement.querySelector('.error-message');
-            if(errName) errName.style.display = "none";
-            if(errSelect) errSelect.style.display = "none";
-
-            if (rawName === "") { 
-                nameInput.classList.add('invalid'); 
-                if(errName) errName.style.display = "block";
-                isFormValid = false; 
+                for (const guest of INITIAL_GUEST_DATABASE) {
+                    await setDoc(doc(db, "invitados", guest.name), {
+                        passes: guest.passes,
+                        table: guest.table
+                    });
+                }
+                return loadGuestsFromFirestore(); // Re-leer tras inicializar
             }
-            if (attendanceValue === "") { 
-                attendanceSelect.classList.add('invalid'); 
-                if(errSelect) errSelect.style.display = "block";
-                isFormValid = false; 
-            }
-            if (!isFormValid) return;
 
-            const btnConfirm = rsvpForm.querySelector('.btn-confirm');
-            if(btnConfirm) { btnConfirm.disabled = true; btnConfirm.innerText = 'Procesando...'; }
-
-            resultBox.style.display = "none";
-            resultBox.innerHTML = "";
-
-            try {
-                const querySnapshot = await getDocs(collection(db, "invitados"));
-                const currentGuestsList = [];
-                querySnapshot.forEach((doc) => {
-                    currentGuestsList.push({ id: doc.id, ...doc.data() });
+            // Almacenar los datos recuperados de la nube
+            GUEST_DATABASE = [];
+            querySnapshot.forEach((doc) => {
+                GUEST_DATABASE.push({
+                    name: doc.id,
+                    ...doc.data()
                 });
+            });
+            console.log("Sincronización con Firestore completada con éxito.");
+        } catch (error) {
+            console.error("Error crítico leyendo Firestore: ", error);
+        }
+    }
 
-                const matchData = findGuestMatch(rawName, currentGuestsList);
+    // Esperamos la carga de la base de datos real antes de continuar
+    await loadGuestsFromFirestore();
 
-                if (matchData) {
-                    const guest = matchData.guest;
-                    const nuevoEstado = attendanceValue === "yes" ? "confirmado" : "no asistirá";
+    // Variables de control de edición
+    let isEditing = false;
+    let originalNameForEditing = "";
 
-                    const guestRef = doc(db, "invitados", guest.id);
-                    await updateDoc(guestRef, { estado: nuevoEstado });
+    // Elementos del DOM de Búsqueda Pública
+    const searchInput = document.getElementById('searchInput');
+    const btnSearch = document.getElementById('btnSearch');
+    const searchResult = document.getElementById('searchResult');
 
-                    resultBox.className = "result-card success";
-                    resultBox.style.display = "block";
+    // Elementos del DOM del Panel Administrador
+    const btnToggleAdmin = document.getElementById('btnToggleAdmin');
+    const adminPanel = document.getElementById('adminPanel');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminDashboard = document.getElementById('adminDashboard');
+    
+    const btnCancelLogin = document.getElementById('btnCancelLogin');
+    const btnSubmitLogin = document.getElementById('btnSubmitLogin');
+    const adminPasswordInput = document.getElementById('adminPassword');
+    
+    const btnLogout = document.getElementById('btnLogout');
+    const btnAddNewGuest = document.getElementById('btnAddNewGuest');
+    const guestModal = document.getElementById('guestModal');
+    const guestForm = document.getElementById('guestForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    
+    const guestNameInput = document.getElementById('guestName');
+    const guestPassesInput = document.getElementById('guestPasses');
+    const guestTableInput = document.getElementById('guestTable');
+    const guestTableBody = document.getElementById('guestTableBody');
 
-                    if (attendanceValue === "no") {
-                        resultBox.innerHTML = `
-                            <div class="result-icon">😔</div>
-                            <h3>Confirmación Recibida</h3>
-                            <p>Lamentamos mucho que no puedas acompañarnos, <strong>${guest.nombre}</strong>. ¡Agradecemos tu respuesta!</p>
-                        `;
-                    } else {
-                        const obsText = matchData.score < 0.92 ? `<p style="color:#777; font-size:0.85rem; margin-bottom:10px;">Encontrado como: "<em>${guest.nombre}</em>"</p>` : '';
-                        resultBox.innerHTML = `
-                            <div id="ticketCard" class="ticket-card" style="margin-top: 15px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 5px solid #b89742; text-align: center;">
-                                <div class="ticket-header">
-                                    <span class="ticket-badge" style="font-size:0.75rem; background:#f5f0e1; color:#b89742; padding:4px 10px; border-radius:20px; font-weight:600;">Pase Digital Oficial</span>
-                                    <h2 class="ticket-main-title" style="font-family:'Playfair Display',serif; margin: 10px 0 5px 0;">Bautizo & Cumpleaños</h2>
-                                </div>
-                                <div class="ticket-body" style="margin: 15px 0;">
-                                    <p class="ticket-label" style="font-size:0.8rem; color:#666; margin:0;">Invitado Confirmado</p>
-                                    <h3 class="ticket-guest-name" style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#b89742; font-style:italic; margin:5px 0 15px 0;">${guest.nombre}</h3>
-                                    ${obsText}
-                                    <div class="ticket-meta-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#f8f9fa; padding:12px; border-radius:8px;">
-                                        <div><span style="display:block; font-size:0.75rem; color:#777;">Mesa Asignada</span><strong style="color:#b89742;">${guest.mesa || 'Por asignar'}</strong></div>
-                                        <div><span style="display:block; font-size:0.75rem; color:#777;">Total Pases</span><strong>${guest.pases || 1} Persona(s)</strong></div>
-                                    </div>
-                                    <div class="qr-wrapper" style="display:flex; justify-content:center; margin-top:20px;">
-                                        <div id="ticketQrcode" style="padding:10px; background:#fff; border-radius:8px; border:1px solid #eee;"></div>
-                                    </div>
-                                </div>
-                                <div class="ticket-footer" style="font-size:0.8rem; color:#555; border-top:1px dashed #ddd; padding-top:10px;">
-                                    <p>📅 Sábado, 13 de Junio - 10:00 AM</p>
-                                    <p>📍 Local de Eventos Castope - Tartar</p>
-                                </div>
-                            </div>
-                            <button type="button" id="btnDownloadTicket" class="btn-download">💾 Descargar Pase</button>
-                        `;
+    // ==========================================
+    // 🔍 LÓGICA DE BÚSQUEDA PÚBLICA
+    // ==========================================
+    if (btnSearch && searchInput) {
+        btnSearch.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+    }
 
-                        setTimeout(() => {
-                            const qrContainer = document.getElementById('ticketQrcode');
-                            if (qrContainer) {
-                                qrContainer.innerHTML = ""; 
-                                const textoQR = `✨ INVITACIÓN KIARA ✨\nInvitado: ${guest.nombre}\nMesa: ${guest.mesa || 'Por asignar'}\nPases: ${guest.pases || 1}`;
-                                try {
-                                    new QRCode("ticketQrcode", { text: textoQR, width: 140, height: 140 });
-                                } catch (e) {
-                                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(textoQR)}" style="width:140px; height:140px;">`;
-                                }
-                            }
-                        }, 250);
+    function performSearch() {
+        const query = searchInput.value.trim().toLowerCase();
+        if (!query) {
+            alert("Por favor, ingresa tu nombre.");
+            return;
+        }
+
+        const found = GUEST_DATABASE.find(g => g.name.toLowerCase().includes(query));
+
+        if (found) {
+            searchResult.innerHTML = `
+                <div class="card result-card text-animate" id="ticketCard">
+                    <div class="ticket-header">
+                        <h3 class="font-title" style="font-size: 2rem; color: #b89742; margin-bottom: 5px;">¡Pase de Invitación!</h3>
+                        <p style="font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: #666;">Pase Personalizado</p>
+                    </div>
+                    <div class="ticket-body" style="padding: 20px 0; border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; margin: 15px 0; text-align: left;">
+                        <p style="margin-bottom: 10px; font-size: 1.1rem;"><strong>Invitado:</strong> <span style="color: #222; font-weight: 600;">${found.name}</span></p>
+                        <p style="margin-bottom: 10px; font-size: 1.1rem;"><strong>N° de Pases:</strong> <span style="background: #f5f0e1; padding: 2px 8px; border-radius: 4px; color: #b89742; font-weight: 600;">${found.passes} Persona(s)</span></p>
+                        <p style="font-size: 1.1rem;"><strong>Mesa Asignada:</strong> <span style="color: #222; font-weight: 600;">${found.table || 'Por definir'}</span></p>
+                    </div>
+                    <div style="display: flex; justify-content: center; margin: 20px 0;" id="qrcode"></div>
+                    <button class="btn-download" id="btnDownloadTicket">📥 Descargar Pase (Imagen)</button>
+                </div>
+            `;
+            searchResult.style.display = "block";
+            searchResult.scrollIntoView({ behavior: 'smooth' });
+
+            // Generación de QR dinámico
+            setTimeout(() => {
+                new QRCode(document.getElementById("qrcode"), {
+                    text: `Invitado: ${found.name} | Pases: ${found.passes} | ${found.table}`,
+                    width: 128,
+                    height: 128,
+                    colorDark: "#222222",
+                    colorLight: "#ffffff"
+                });
+            }, 100);
+        } else {
+            searchResult.innerHTML = `
+                <div class="card result-card error-card text-animate">
+                    <p style="color: #c53030; font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;">No encontrado</p>
+                    <p style="color: #742a2a; font-size: 0.95rem;">No pudimos encontrar tu nombre en la lista de invitados. Revisa bien los caracteres o contáctate con los organizadores.</p>
+                </div>
+            `;
+            searchResult.style.display = "block";
+        }
+    }
+
+    // ==========================================
+    // 🔒 GESTIÓN DEL MODAL Y ACCESO ADMIN
+    // ==========================================
+    btnToggleAdmin.addEventListener('click', () => {
+        adminPanel.style.display = 'flex';
+        adminLoginForm.style.display = 'block';
+        adminDashboard.style.display = 'none';
+        adminPasswordInput.value = "";
+        adminPasswordInput.focus();
+    });
+
+    btnCancelLogin.addEventListener('click', () => {
+        adminPanel.style.display = 'none';
+    });
+
+    btnSubmitLogin.addEventListener('click', loginAdmin);
+    adminPasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loginAdmin();
+    });
+
+    function loginAdmin() {
+        if (adminPasswordInput.value === ADMIN_PASSWORD) {
+            adminLoginForm.style.display = 'none';
+            adminDashboard.style.display = 'block';
+            renderAdminTable();
+        } else {
+            alert("Contraseña de administrador incorrecta.");
+        }
+    }
+
+    btnLogout.addEventListener('click', () => {
+        adminPanel.style.display = 'none';
+    });
+
+    // ==========================================
+    // 📝 OPERACIONES CRUD CON FIRESTORE (ADMIN)
+    // ==========================================
+    function renderAdminTable() {
+        guestTableBody.innerHTML = "";
+        GUEST_DATABASE.forEach((guest, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${guest.name}</strong></td>
+                <td><span style="background: #edf2f7; padding: 2px 6px; border-radius: 4px;">${guest.passes}</span></td>
+                <td>${guest.table || '-'}</td>
+                <td>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn-edit" data-index="${index}" style="background: #3182ce; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Editar</button>
+                        <button class="btn-delete" data-name="${guest.name}" style="background: #e53e3e; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Eliminar</button>
+                    </div>
+                </td>
+            `;
+            guestTableBody.appendChild(tr);
+        });
+
+        // Eventos dinámicos de los botones de la tabla
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = e.target.getAttribute('data-index');
+                openModalForEdit(GUEST_DATABASE[idx]);
+            });
+        });
+
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const nameToDelete = e.target.getAttribute('data-name');
+                if (confirm(`¿Estás seguro de que deseas eliminar a "${nameToDelete}"?`)) {
+                    // ELIMINAR DIRECTAMENTE EN FIRESTORE
+                    try {
+                        await deleteDoc(doc(db, "invitados", nameToDelete));
+                        await loadGuestsFromFirestore(); // Sincroniza localmente
+                        renderAdminTable(); // Redibuja tabla
+                    } catch (err) {
+                        alert("Error al intentar eliminar de Firebase: " + err);
                     }
-                } else {
-                    resultBox.className = "result-card error";
-                    resultBox.style.display = "block";
-                    resultBox.innerHTML = `<div class="result-icon">❌</div><h3>No encontrado</h3><p>No encontramos ninguna coincidencia exacta. Por favor, revisa tu nombre y apellido.</p>`;
                 }
-            } catch (err) {
-                console.error("Error RSVP:", err);
-                alert("Error de red o conexión al procesar la base de datos.");
-            } finally {
-                if(btnConfirm) { btnConfirm.disabled = false; btnConfirm.innerText = 'Enviar Confirmación'; }
-                resultBox.scrollIntoView({ behavior: 'smooth' });
-            }
+            });
         });
     }
 
-    // 🔒 LOGIN MODO ADMINISTRADOR
-    if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
-    if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
+    // Abrir modal para añadir nuevo
+    btnAddNewGuest.addEventListener('click', () => {
+        isEditing = false;
+        modalTitle.innerText = "Agregar Nuevo Invitado";
+        guestForm.reset();
+        guestNameInput.disabled = false; // El ID de documento se define al crear
+        guestModal.style.display = 'flex';
+    });
 
-    if (loginAdminForm) {
-        loginAdminForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const inputEmail = document.getElementById('adminEmail').value.trim();
-            const inputPassword = document.getElementById('adminPassword').value;
-
-            if (inputEmail === "admineventokiara@gmail.com" && inputPassword === "Bautizokiara152406") {
-                adminLoginModal.style.display = "none";
-                mainViewContainer.style.display = "none";
-                adminViewContainer.style.display = "block";
-                loginAdminForm.reset();
-                activarEscuchaPanelAdmin(); 
-            } else {
-                alert("❌ Credenciales incorrectas de administrador.");
-            }
-        });
+    // Abrir modal para editar existente
+    function openModalForEdit(guest) {
+        isEditing = true;
+        originalNameForEditing = guest.name;
+        modalTitle.innerText = "Editar Invitado";
+        
+        guestNameInput.value = guest.name;
+        guestNameInput.disabled = true; // Deshabilitamos cambio de nombre para mantener integridad de la clave ID
+        guestPassesInput.value = guest.passes;
+        guestTableInput.value = guest.table || "";
+        
+        guestModal.style.display = 'flex';
     }
 
-    if (btnCloseAdmin) {
-        btnCloseAdmin.addEventListener('click', () => {
-            adminViewContainer.style.display = "none";
-            mainViewContainer.style.display = "block";
-        });
-    }
+    btnCancelModal.addEventListener('click', () => {
+        guestModal.style.display = 'none';
+    });
 
-    // 📊 ESCUCHADOR EN TIEMPO REAL REAL CON ONSNAPSHOT
-    function activarEscuchaPanelAdmin() {
-        onSnapshot(collection(db, "invitados"), (snapshot) => {
-            let countYes = 0; let countNo = 0; let countPending = 0; let totalPasses = 0;
-            adminGuestTableBody.innerHTML = ""; 
+    // GUARDAR EN FIRESTORE (Evento Submit del Modal)
+    guestForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = guestNameInput.value.trim();
+        const passes = parseInt(guestPassesInput.value);
+        const table = guestTableInput.value.trim();
 
-            snapshot.forEach((guestDoc) => {
-                const guest = guestDoc.data();
-                const pasesItem = parseInt(guest.pases) || 0;
-                let statusCircle = ""; let statusText = "PENDIENTE";
+        if (!name || isNaN(passes)) return;
 
-                if (guest.estado === 'confirmado') {
-                    statusCircle = `<span style="display:inline-block; width:12px; height:12px; background:#2ecc71; border-radius:50%; margin-right:8px;"></span>`;
-                    statusText = "SÍ ASISTIRÁ";
-                    countYes++; totalPasses += pasesItem;
-                } else if (guest.estado === 'no asistirá') {
-                    statusCircle = `<span style="display:inline-block; width:12px; height:12px; background:#e74c3c; border-radius:50%; margin-right:8px;"></span>`;
-                    statusText = "NO ASISTIRÁ";
-                    countNo++;
-                } else {
-                    statusCircle = `<span style="display:inline-block; width:12px; height:12px; background:#cbd5e1; border-radius:50%; margin-right:8px;"></span>`;
-                    statusText = "PENDIENTE";
-                    countPending++;
-                }
-
-                const tr = document.createElement('tr');
-                tr.style.borderBottom = "1px solid #f0f0f0";
-                tr.innerHTML = `
-                    <td style="padding:12px; font-size:0.85rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
-                    <td style="padding:12px; font-weight:500;">${guest.nombre || 'Sin nombre'}</td>
-                    <td style="padding:12px; color:#666;">${guest.mesa || '—'}</td>
-                    <td style="padding:12px; font-weight:600; color:#b89742;">${pasesItem}</td>
-                `;
-                adminGuestTableBody.appendChild(tr);
+        try {
+            // INSERTAR O ACTUALIZAR DOCUMENTO EN FIRESTORE
+            await setDoc(doc(db, "invitados", name), {
+                passes: passes,
+                table: table
             });
 
-            document.getElementById('statYes').innerText = countYes;
-            document.getElementById('statNo').innerText = countNo;
-            document.getElementById('statPending').innerText = countPending;
-            document.getElementById('statPasses').innerText = totalPasses;
-        });
-    }
+            // Re-sincronizar cambios en memoria y renderizar interfaz
+            await loadGuestsFromFirestore();
+            guestModal.style.display = 'none';
+            renderAdminTable();
+            
+        } catch (error) {
+            alert("No se pudo guardar la información en Firebase: " + error);
+        }
+    });
 
-    // Descarga de tickets interactiva mediante html2canvas
-    document.body.addEventListener('click', function (e) {
+    // ==========================================
+    // 📸 MANEJO DE DESCARGA DE CAPTURAS DE PANTALLA
+    // ==========================================
+    document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'btnDownloadTicket') {
-            const guestName = document.querySelector('.ticket-guest-name').innerText;
-            html2canvas(document.getElementById('ticketCard'), { scale: 2, useCORS: true }).then(canvas => {
+            const ticket = document.getElementById('ticketCard');
+            const guestName = ticket.querySelector('span').innerText;
+
+            // Ocultamos temporalmente el botón de descarga para que no salga en la captura
+            e.target.style.display = 'none';
+
+            html2canvas(ticket, { scale: 2, useCORS: true }).then(canvas => {
+                e.target.style.display = 'block'; // Lo restauramos
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/png');
                 link.download = `Pase_${guestName.replace(/\s+/g, '_')}.png`;
