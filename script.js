@@ -494,22 +494,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 // ==========================================
-// 🛠️ 1. IMPORTACIONES DE CONFIGURACIÓN FIREBASE
+// 🛠️ 1. IMPORTACIONES DE CONFIGURACIÓN FIREBASE (PRODUCCIÓN EN LA NUBE)
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// !!! REEMPLAZA ESTO CON TUS CREDENCIALES REALES DE LA CONSOLA DE FIREBASE !!!
+// 👇 REEMPLAZA ESTE BLOQUE CON LOS DATOS REALES DE TU PESTAÑA "GENERAL" EN FIREBASE
 const firebaseConfig = {
-    apiKey: "AIzaSyA1X...", 
-    authDomain: "tu-evento-app.firebaseapp.com",
-    projectId: "tu-evento-app",
-    storageBucket: "tu-evento-app.appspot.com",
-    messagingSenderId: "85214796325",
-    appId: "1:85214796325:web:a1b2c3d4e5f6"
+    apiKey: "TU_API_KEY_REAL_DE_LA_CONSOLA", 
+    authDomain: "TU_AUTH_DOMAIN_REAL",
+    projectId: "TU_PROJECT_ID_REAL",
+    storageBucket: "TU_STORAGE_BUCKET_REAL",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID_REAL",
+    appId: "TU_APP_ID_REAL"
 };
 
-// Inicializar Firebase y Firestore Reference
+// Inicializar Firebase y Firestore apuntando a la NUBE REAL
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const invitadosCollection = collection(db, "invitados");
@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const querySnapshot = await getDocs(invitadosCollection);
             
-            // Si Firestore está vacío, migramos tu lista inicial completa por única vez
+            // Si Firestore está vacío en la nube, migramos tu lista inicial completa por única vez
             if (querySnapshot.empty) {
                 console.log("Sincronizando lista inicial por primera vez a Firestore...");
                 const INITIAL_GUEST_DATABASE = [
@@ -550,22 +550,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                     { name: "Fanny Paredes", passes: 1, table: "Mesa 8", status: "pending" },
                     { name: "Edith Mendoza", passes: 2, table: "Mesa 8", status: "pending" },
                     { name: "David Ruiz", passes: 3, table: "Mesa 8", status: "pending" },
-                    { name: "Jambo Chingay Nicool", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Tingal de la Cruz Joselin", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Valencia Castaneda Yvette", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Chilon Ocas Daniel", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Angaspil Ortiz Gabriela", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Vergara Sanchez Mar", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Cotrina Diaz Cesar", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Cordova Vera Claudio", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Cerquin Castrejon Keysi", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Mendoza Sanchez Paco", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Alcantara Chacon Dayer", passes: 1, border: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Llanos Saavedra Jean Franco", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Cercado Cruzado Gloria", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
-                    { name: "Yopla Miranda Jenny", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Ishpilco Ernandez Piero", passes: 1, table: "Mesa de Compañeros (Mesa 20)", status: "pending" },
-                    { name: "Garcia Banda Gaudy", passes: 1, table: "Mesa de Compañeros (Mesa 19)", status: "pending" },
+                    { name: "Jambo Chingay Nicool", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Tingal de la Cruz Joselin", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Valencia Castaneda Yvette", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Chilon Ocas Daniel", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Angaspil Ortiz Gabriela", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Vergara Sanchez Mar", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Cotrina Diaz Cesar", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Cordova Vera Claudio", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Cerquin Castrejon Keysi", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Mendoza Sanchez Paco", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Alcantara Chacon Dayer", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Llanos Saavedra Jean Franco", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Cercado Cruzado Gloria", passes: 1, table: "Mesa 19", status: "pending" },
+                    { name: "Yopla Miranda Jenny", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Ishpilco Ernandez Piero", passes: 1, table: "Mesa 20", status: "pending" },
+                    { name: "Garcia Banda Gaudy", passes: 1, table: "Mesa 19", status: "pending" },
                     { name: "Carlos Chalan Llanos", passes: 1, table: "Mesa 2", status: "pending" },
                     { name: "Jorge Chalan", passes: 6, table: "Mesa 1", status: "pending" },
                     { name: "Jaime Chalan", passes: 5, table: "Mesa 1", status: "pending" },
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return loadGuestsFromFirestore(); 
             }
 
-            // Almacenar los datos recuperados reales de la nube
+            // Almacenar en memoria local los datos recuperados reales de la nube
             GUEST_DATABASE = [];
             querySnapshot.forEach((doc) => {
                 GUEST_DATABASE.push({
@@ -611,20 +611,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ...doc.data()
                 });
             });
-            console.log("Sincronización global con Firestore completada con éxito.");
+            console.log("¡Sincronización global con Firebase exitosa!");
         } catch (error) {
-            console.error("Error crítico leyendo Firestore: ", error);
+            console.error("Error leyendo Firestore desde la nube: ", error);
         }
     }
 
-    // Inicializamos la lectura de la base de datos real
+    // Inicializamos la lectura de la base de datos de la nube
     await loadGuestsFromFirestore();
 
     // ==========================================
     // 🧠 2. ALGORITMO DE COMPARACIÓN INTELIGENTE
     // ==========================================
     const NICKNAMES = {
-        "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda", "marjhori": "marsholl"
+        "lucho": "luis", "pepe": "jose", "kory": "kori", "nico": "nicool", "mafer": "maria fernanda"
     };
 
     const normalizeText = (text) => {
@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // ==========================================
-    // 📋 3. GESTOR DE FORMULARIO DE CONFIRMACIÓN (HACIA FIRESTORE)
+    // 📋 3. GESTOR DE FORMULARIO DE CONFIRMACIÓN (HACIA FIRESTORE CLOUD)
     // ==========================================
     const rsvpForm = document.getElementById('rsvpForm');
     const nameInput = document.getElementById('guestName');
@@ -695,7 +695,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             resultBox.style.display = "none";
             resultBox.innerHTML = "";
 
-            // Buscamos coincidencia con el algoritmo inteligente
             const matchData = findGuestMatch(rawName);
 
             if (matchData) {
@@ -703,14 +702,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const nuevoEstado = attendanceValue === "yes" ? "yes" : "no";
 
                 try {
-                    // 🔥 COUPLER DIRECTO A FIRESTORE: Actualizamos el estado en la nube
+                    // 🔥 SE GUARDA EN LA NUBE GLOBAL DE FIREBASE
                     await setDoc(doc(db, "invitados", guest.name), {
                         passes: guest.passes,
                         table: guest.table,
                         status: nuevoEstado
                     });
 
-                    // Refrescar base de datos en memoria local de la app
+                    // Refrescar memoria local descargando el nuevo estado de la nube
                     await loadGuestsFromFirestore();
 
                     if (nuevoEstado === "no") {
@@ -719,7 +718,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         resultBox.innerHTML = `
                             <div class="result-icon">😔</div>
                             <h3>Confirmación Recibida</h3>
-                            <p>Lamentamos mucho que no puedas acompañarnos, <strong>${guest.name}</strong>. ¡Agradecemos tu respuesta!</p>
+                            <p>Lamentamos que no puedas asistir, <strong>${guest.name}</strong>. ¡Gracias por responder!</p>
                         `;
                     } else {
                         resultBox.className = "result-card success";
@@ -752,26 +751,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <button type="button" id="btnDownloadTicket" class="btn-download">💾 Descargar Pase</button>
                         `;
 
-                        // Renderizado de QR
                         setTimeout(() => {
                             const qrContainer = document.getElementById('ticketQrcode');
                             if (qrContainer) {
                                 qrContainer.innerHTML = ""; 
-                                const textoQR = `✨ INVITACIÓN OFICIAL ✨\nAnfitriona: KIARA JIMENA\nInvitado: ${guest.name}\nUbicación: ${guest.table}\nPases: ${guest.passes} Persona(s)`;
-                                
-                                try {
-                                    new QRCode("ticketQrcode", {
-                                        text: textoQR,
-                                        width: 140,
-                                        height: 140,
-                                        colorDark: "#1a1a1a",
-                                        colorLight: "#ffffff",
-                                        correctLevel: QRCode.CorrectLevel.M
-                                    });
-                                } catch (error) {
-                                    const qrTextEncoded = encodeURIComponent(textoQR);
-                                    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${qrTextEncoded}" alt="QR" style="display:block; width:140px; height:140px;">`;
-                                }
+                                const textoQR = `✨ INVITACIÓN ✨\nInvitado: ${guest.name}\nMesa: ${guest.table}\nPases: ${guest.passes}`;
+                                new QRCode("ticketQrcode", {
+                                    text: textoQR,
+                                    width: 140,
+                                    height: 140,
+                                    colorDark: "#1a1a1a",
+                                    colorLight: "#ffffff"
+                                });
                             }
                         }, 100);
 
@@ -785,7 +776,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         });
                     }
                 } catch (err) {
-                    alert("Error guardando confirmación global: " + err);
+                    alert("Error guardando en la nube de Firebase: " + err);
                 }
             } else {
                 resultBox.className = "result-card error";
@@ -801,11 +792,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ==========================================
     // 🔒 4. LÓGICA VISTA DE ADMINISTRADOR
     // ==========================================
-    const CREDENTIALS = {
-        email: "admineventokiara@gmail.com",
-        password: "12345"
-    };
-
+    const CREDENTIALS = { email: "admineventokiara@gmail.com", password: "12345" };
     const btnToggleAdmin = document.getElementById('btnToggleAdmin');
     const btnCloseAdmin = document.getElementById('btnCloseAdmin');
     const btnCancelLogin = document.getElementById('btnCancelLogin');
@@ -820,28 +807,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         let countYes = 0; let countNo = 0; let countPending = 0; let totalPasses = 0;
 
         GUEST_DATABASE.forEach(guest => {
-            let statusCircle = "";
-            let statusText = "PENDIENTE";
-
+            let statusCircle = ""; let statusText = "PENDIENTE";
             if (guest.status === 'yes') {
-                statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#2ecc71; border-radius:50%; margin-right:10px; box-shadow: 0 0 6px #2ecc71; border: 1px solid #27ae60;"></span>`;
-                statusText = "SÍ ASISTIRÁ";
-                countYes++;
-                totalPasses += guest.passes;
+                statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#2ecc71; border-radius:50%; margin-right:10px;"></span>`;
+                statusText = "SÍ ASISTIRÁ"; countYes++; totalPasses += guest.passes;
             } else if (guest.status === 'no') {
-                statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#e74c3c; border-radius:50%; margin-right:10px; box-shadow: 0 0 6px #e74c3c; border: 1px solid #c0392b;"></span>`;
-                statusText = "NO ASISTIRÁ";
-                countNo++;
+                statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#e74c3c; border-radius:50%; margin-right:10px;"></span>`;
+                statusText = "NO ASISTIRÁ"; countNo++;
             } else {
-                statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#ffffff; border:2px solid #cbd5e1; border-radius:50%; margin-right:10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);"></span>`;
-                statusText = "PENDIENTE";
-                countPending++;
+                statusCircle = `<span style="display:inline-block; width:14px; height:14px; background:#ffffff; border:2px solid #cbd5e1; border-radius:50%; margin-right:10px;"></span>`;
+                statusText = "PENDIENTE"; countPending++;
             }
 
             const tr = document.createElement('tr');
-            tr.style.borderBottom = "1px solid #e2e8f0";
             tr.innerHTML = `
-                <td style="padding:12px; display:flex; align-items:center; font-size:0.8rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
+                <td style="padding:12px; font-size:0.8rem; font-weight:600; color:#555;">${statusCircle} ${statusText}</td>
                 <td style="padding:12px; font-weight:600; color:#333;">${guest.name}</td>
                 <td style="padding:12px; color:#555;">${guest.table}</td>
                 <td style="padding:12px; font-weight:600; color:#b89742;">${guest.passes}</td>
@@ -855,13 +835,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('statPasses').innerText = totalPasses;
     };
 
-    if (btnToggleAdmin) {
-        btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
-    }
-
-    if (btnCancelLogin) {
-        btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
-    }
+    if (btnToggleAdmin) btnToggleAdmin.addEventListener('click', () => { adminLoginModal.style.display = "flex"; });
+    if (btnCancelLogin) btnCancelLogin.addEventListener('click', () => { adminLoginModal.style.display = "none"; loginAdminForm.reset(); });
 
     if (loginAdminForm) {
         loginAdminForm.addEventListener('submit', async (e) => {
@@ -874,50 +849,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                 mainViewContainer.style.display = "none";
                 adminViewContainer.style.display = "block";
                 loginAdminForm.reset();
-                
-                // Antes de renderizar, volvemos a descargar por si alguien confirmó desde otro celular
                 await loadGuestsFromFirestore();
                 renderAdminData();
             } else {
-                alert("❌ Correo o contraseña incorrectos. Inténtalo de nuevo.");
+                alert("❌ Correo o contraseña incorrectos.");
             }
         });
     }
 
-    if (btnCloseAdmin) {
-        btnCloseAdmin.addEventListener('click', () => { adminViewContainer.style.display = "none"; mainViewContainer.style.display = "flex"; });
-    }
+    if (btnCloseAdmin) btnCloseAdmin.addEventListener('click', () => { adminViewContainer.style.display = "none"; mainViewContainer.style.display = "flex"; });
 
     // ==========================================
-    // ⏰ 5. EFECTOS VISUALES Y CUENTA REGRESIVA
+    // ⏰ 5. CUENTA REGRESIVA DECORATIVA
     // ==========================================
-    const bg = document.getElementById('animatedBg');
-    if (bg) {
-        for (let i = 0; i < 15; i++) {
-            const p = document.createElement('div'); p.classList.add('particle');
-            p.style.width = p.style.height = `${Math.random() * 15 + 6}px`;
-            p.style.left = `${Math.random() * 100}%`; p.style.animationDelay = `${Math.random() * 5}s`;
-            bg.appendChild(p);
-        }
-    }
-
-    const animatedElements = document.querySelectorAll('.fade-in-up');
-    const checkScroll = () => { animatedElements.forEach(el => { el.classList.add('visible'); }); };
-    setTimeout(checkScroll, 100);
-
     const eventDate = new Date(2026, 5, 13, 10, 0, 0).getTime();
     setInterval(() => {
         const diff = eventDate - new Date().getTime();
         if (diff > 0) {
-            const daysEl = document.getElementById('days');
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-
-            if (daysEl) daysEl.innerText = String(Math.floor(diff / (1000*60*60*24))).padStart(2, '0');
-            if (hoursEl) hoursEl.innerText = String(Math.floor((diff % (1000*60*60*24)) / (1000*60*60))).padStart(2, '0');
-            if (minutesEl) minutesEl.innerText = String(Math.floor((diff % (1000*60*60)) / (1000*60))).padStart(2, '0');
-            if (secondsEl) secondsEl.innerText = String(Math.floor((diff % (1000*60)) / 1000)).padStart(2, '0');
+            document.getElementById('days').innerText = String(Math.floor(diff / (1000*60*60*24))).padStart(2, '0');
+            document.getElementById('hours').innerText = String(Math.floor((diff % (1000*60*60*24)) / (1000*60*60))).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(Math.floor((diff % (1000*60*60)) / (1000*60))).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(Math.floor((diff % (1000*60)) / 1000)).padStart(2, '0');
         }
     }, 1000);
 });
