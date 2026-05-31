@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bautizo y Cumple Kiara</title>
+    <!-- Esto enviará a todos tus invitados directamente a invitacions.html -->
+    <meta http-equiv="refresh" content="0; url=invitaciones.html">
+    <style>
+        :root {
+            --primary: #6f42c1;
+            --primary-hover: #5a32a3;
+            --accent: #ffb703;
+            --bg: #f4f6f9;
+            --dark: #212529;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --danger-hover: #bd2130;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        header h1 { color: var(--primary); margin: 0; font-size: 24px; }
+        header p { margin: 5px 0 0 0; color: #666; }
+
+        .btn-reset {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-reset:hover { background-color: var(--danger-hover); }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+        }
+
+        .stat-card.confirmados { border-left-color: var(--success); }
+        .stat-card.pendientes { border-left-color: var(--warning); }
+
+        .stat-card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; }
+        .stat-card p { margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: var(--dark); }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2.8fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .card h2 { margin-top: 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: var(--primary); color: white; padding: 12px; border: none; border-radius: 4px;
+            cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background-color: var(--primary); color: white; }
+
+        .select-status-inline {
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .status-Pendiente { background-color: #fff3cd; color: #856404; }
+        .status-Confirmado { background-color: #d4edda; color: #155724; }
+        .status-Rechazado { background-color: #f8d7da; color: #721c24; }
+
+        /* Botón eliminar en la tabla */
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <header>
+            <div>
+                <h1>Bautizo y Cumple Kiara</h1>
+                <p>Modo Administrador - Control Total de Invitados</p>
+            </div>
+            <button id="btnResetAll" class="btn-reset">🔄 Restablecer Todo a Pendiente</button>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Familias</h3>
+                <p id="statTotalInvitados">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Pases Asignados</h3>
+                <p id="statTotalPases">0</p>
+            </div>
+            <div class="stat-card confirmados">
+                <h3>Pases Confirmados</h3>
+                <p id="statPasesConfirmados">0</p>
+            </div>
+            <div class="stat-card pendientes">
+                <h3>Pases Pendientes</h3>
+                <p id="statPasesPendientes">0</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>Registrar Nuevo Invitado</h2>
+                <form id="guestForm">
+                    <div class="form-group">
+                        <label for="fullName">Nombre de la Familia / Invitado</label>
+                        <input type="text" id="fullName" placeholder="Ej. Familia Mendoza Ramos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tableNumber">Número de Mesa</label>
+                        <input type="number" id="tableNumber" placeholder="Ej. 4" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pasesAsignados">Pases Asignados</label>
+                        <input type="number" id="pasesAsignados" value="1" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Estado Inicial</label>
+                        <select id="status">
+                            <option value="Pendiente">Pendiente (No ha respondido)</option>
+                            <option value="Confirmado">Confirmado (Asistirá)</option>
+                            <option value="Rechazado">Rechazado (No asistirá)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Guardar en Cloud Firestore</button>
+                </form>
+            </div>
+
+            <div class="card table-container">
+                <h2>Lista de Control de Invitados</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invitado / Familia</th>
+                            <th>Mesa</th>
+                            <th>Pases Asignados</th>
+                            <th>Pases Reales</th>
+                            <th>Estado (Cambio Directo)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guestTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, writeBatch, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
+            authDomain: "bautizo-cumple-kiara.firebaseapp.com",
+            projectId: "bautizo-cumple-kiara",
+            storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
+            messagingSenderId: "761827758856",
+            appId: "1:761827758856:web:706812d34bfa118bb292bd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const guestForm = document.getElementById('guestForm');
+        const guestTableBody = document.getElementById('guestTableBody');
+        const btnResetAll = document.getElementById('btnResetAll');
+
+        // 1. ESCUCHAR EN TIEMPO REAL
+        onSnapshot(collection(db, "invitados"), (snapshot) => {
+            let listaInvitados = [];
+            snapshot.forEach((doc) => {
+                listaInvitados.push({ id: doc.id, ...doc.data() });
+            });
+            actualizarInterfaz(listaInvitados);
+        });
+
+        // 2. AGREGAR INDIVIDUAL
+        guestForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('fullName').value;
+            const mesa = parseInt(document.getElementById('tableNumber').value);
+            const pasesAsignados = parseInt(document.getElementById('pasesAsignados').value);
+            const estado = document.getElementById('status').value;
+            let pasesReales = (estado === 'Confirmado') ? pasesAsignados : 0;
+
+            try {
+                await addDoc(collection(db, "invitados"), { nombre, mesa, pasesAsignados, pasesReales, estado });
+                guestForm.reset();
+                document.getElementById('pasesAsignados').value = 1;
+            } catch (error) {
+                console.error("Error al guardar: ", error);
+            }
+        });
+
+        // 3. ACTUALIZAR ESTADO DESDE LA TABLA
+        window.cambiarEstadoIndividual = async function(idDocumento, nuevoEstado, pasesAsignados) {
+            const documentoRef = doc(db, "invitados", idDocumento);
+            let nuevosPasesReales = (nuevoEstado === 'Confirmado') ? parseInt(pasesAsignados) : 0;
+
+            try {
+                await updateDoc(documentoRef, { estado: nuevoEstado, pasesReales: nuevosPasesReales });
+            } catch (error) {
+                console.error("Error al actualizar estado:", error);
+            }
+        };
+
+        // 4. ELIMINAR INVITADO DE FIRESTORE (NUEVA FUNCIÓN)
+        window.eliminarInvitado = async function(idDocumento, nombreInvitado) {
+            const confirmarBorrado = confirm(`⚠️ ¿Estás seguro de que deseas eliminar por completo a "${nombreInvitado}" de la lista?`);
+            
+            if (!confirmarBorrado) return;
+
+            try {
+                const docRef = doc(db, "invitados", idDocumento);
+                await deleteDoc(docRef);
+                console.log(`Eliminado con éxito: ${idDocumento}`);
+            } catch (error) {
+                console.error("Error al eliminar documento:", error);
+                alert("No se pudo eliminar el invitado.");
+            }
+        };
+
+        // 5. RESTABLECER TODO
+        btnResetAll.addEventListener('click', async () => {
+            const confirmacion = confirm("⚠️ ¿Estás seguro de cambiar a PENDIENTE a todos?");
+            if (!confirmacion) return;
+
+            try {
+                btnResetAll.innerText = "Procesando...";
+                btnResetAll.disabled = true;
+                const querySnapshot = await getDocs(collection(db, "invitados"));
+                const batch = writeBatch(db);
+
+                querySnapshot.forEach((documento) => {
+                    const docRef = doc(db, "invitados", documento.id);
+                    batch.update(docRef, { estado: 'Pendiente', pasesReales: 0 });
+                });
+
+                await batch.commit();
+                alert("🔄 Base de datos restablecida.");
+            } catch (error) {
+                console.error(error);
+            } finally {
+                btnResetAll.innerText = "🔄 Restablecer Todo a Pendiente";
+                btnResetAll.disabled = false;
+            }
+        });
+
+        // 6. RENDER INTERFAZ
+        function actualizarInterfaz(invitados) {
+            guestTableBody.innerHTML = '';
+            let totalPasesAsignados = 0;
+            let pasesConfirmados = 0;
+            let pasesPendientes = 0;
+
+            invitados.forEach(invitado => {
+                totalPasesAsignados += invitado.pasesAsignados;
+                if (invitado.estado === 'Confirmado') pasesConfirmados += invitado.pasesReales;
+                else if (invitado.estado === 'Pendiente') pasesPendientes += invitado.pasesAsignados;
+
+                const fila = `
+                    <tr>
+                        <td><strong>${invitado.nombre}</strong></td>
+                        <td>Mesa ${invitado.mesa}</td>
+                        <td>${invitado.pasesAsignados} pases</td>
+                        <td><strong>${invitado.estado === 'Confirmado' ? invitado.pasesReales : '-'}</strong></td>
+                        <td>
+                            <select 
+                                class="select-status-inline status-${invitado.estado}" 
+                                onchange="cambiarEstadoIndividual('${invitado.id}', this.value, '${invitado.pasesAsignados}')"
+                            >
+                                <option value="Pendiente" ${invitado.estado === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                                <option value="Confirmado" ${invitado.estado === 'Confirmado' ? 'selected' : ''}>✅ Confirmado</option>
+                                <option value="Rechazado" ${invitado.estado === 'Rechazado' ? 'selected' : ''}>❌ Rechazado</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="eliminarInvitado('${invitado.id}', '${invitado.nombre.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+                guestTableBody.innerHTML += fila;
+            });
+
+            document.getElementById('statTotalInvitados').innerText = invitados.length;
+            document.getElementById('statTotalPases').innerText = totalPasesAsignados;
+            document.getElementById('statPasesConfirmados').innerText = pasesConfirmados;
+            document.getElementById('statPasesPendientes').innerText = pasesPendientes;
+        }
+    </script>
+</body>
+</html>
+    
