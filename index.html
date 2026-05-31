@@ -14,6 +14,7 @@
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
+            --danger-hover: #bd2130;
         }
 
         body {
@@ -25,7 +26,7 @@
         }
 
         .dashboard {
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -44,7 +45,6 @@
         header h1 { color: var(--primary); margin: 0; font-size: 24px; }
         header p { margin: 5px 0 0 0; color: #666; }
 
-        /* Botón de Restablecer Todo */
         .btn-reset {
             background-color: var(--danger);
             color: white;
@@ -55,7 +55,7 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        .btn-reset:hover { background-color: #bd2130; }
+        .btn-reset:hover { background-color: var(--danger-hover); }
 
         .stats-container {
             display: grid;
@@ -75,18 +75,17 @@
 
         .stat-card.confirmados { border-left-color: var(--success); }
         .stat-card.pendientes { border-left-color: var(--warning); }
-        .stat-card.rechazados { border-left-color: var(--danger); }
 
         .stat-card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; }
         .stat-card p { margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: var(--dark); }
 
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 2.5fr;
+            grid-template-columns: 1fr 2.8fr;
             gap: 20px;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             .main-content { grid-template-columns: 1fr; }
         }
 
@@ -114,10 +113,9 @@
 
         .table-container { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
         th { background-color: var(--primary); color: white; }
 
-        /* Estilos de controles individuales en la tabla */
         .select-status-inline {
             padding: 5px 8px;
             border-radius: 4px;
@@ -128,6 +126,22 @@
         .status-Pendiente { background-color: #fff3cd; color: #856404; }
         .status-Confirmado { background-color: #d4edda; color: #155724; }
         .status-Rechazado { background-color: #f8d7da; color: #721c24; }
+
+        /* Botón eliminar en la tabla */
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: var(--danger);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -198,6 +212,7 @@
                             <th>Pases Asignados</th>
                             <th>Pases Reales</th>
                             <th>Estado (Cambio Directo)</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="guestTableBody">
@@ -209,9 +224,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, writeBatch, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Credenciales del proyecto Bautizo Cumple Kiara
         const firebaseConfig = {
             apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
             authDomain: "bautizo-cumple-kiara.firebaseapp.com",
@@ -221,7 +235,6 @@
             appId: "1:761827758856:web:706812d34bfa118bb292bd"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -229,7 +242,7 @@
         const guestTableBody = document.getElementById('guestTableBody');
         const btnResetAll = document.getElementById('btnResetAll');
 
-        // 1. ESCUCHAR FIRESTORE EN TIEMPO REAL
+        // 1. ESCUCHAR EN TIEMPO REAL
         onSnapshot(collection(db, "invitados"), (snapshot) => {
             let listaInvitados = [];
             snapshot.forEach((doc) => {
@@ -238,26 +251,17 @@
             actualizarInterfaz(listaInvitados);
         });
 
-        // 2. ENVIAR NUEVO INVITADO A FIREBASE
+        // 2. AGREGAR INDIVIDUAL
         guestForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const nombre = document.getElementById('fullName').value;
             const mesa = parseInt(document.getElementById('tableNumber').value);
             const pasesAsignados = parseInt(document.getElementById('pasesAsignados').value);
             const estado = document.getElementById('status').value;
-            
             let pasesReales = (estado === 'Confirmado') ? pasesAsignados : 0;
 
             try {
-                await addDoc(collection(db, "invitados"), {
-                    nombre,
-                    mesa,
-                    pasesAsignados,
-                    pasesReales,
-                    estado
-                });
-
+                await addDoc(collection(db, "invitados"), { nombre, mesa, pasesAsignados, pasesReales, estado });
                 guestForm.reset();
                 document.getElementById('pasesAsignados').value = 1;
             } catch (error) {
@@ -265,71 +269,71 @@
             }
         });
 
-        // 3. CAMBIAR ESTADO INDIVIDUAL DIRECTO DESDE LA TABLA
+        // 3. ACTUALIZAR ESTADO DESDE LA TABLA
         window.cambiarEstadoIndividual = async function(idDocumento, nuevoEstado, pasesAsignados) {
             const documentoRef = doc(db, "invitados", idDocumento);
             let nuevosPasesReales = (nuevoEstado === 'Confirmado') ? parseInt(pasesAsignados) : 0;
 
             try {
-                await updateDoc(documentoRef, {
-                    estado: nuevoEstado,
-                    pasesReales: nuevosPasesReales
-                });
-                console.log(`Estado actualizado a ${nuevoEstado} para el documento: ${idDocumento}`);
+                await updateDoc(documentoRef, { estado: nuevoEstado, pasesReales: nuevosPasesReales });
             } catch (error) {
-                console.error("Error al actualizar estado individual:", error);
-                alert("No se pudo actualizar el estado.");
+                console.error("Error al actualizar estado:", error);
             }
         };
 
-        // 4. RESTABLECER TODOS LOS INVITADOS A PENDIENTE (PROCESO MASIVO)
-        btnResetAll.addEventListener('click', async () => {
-            const confirmacion = confirm("⚠️ ¿Estás seguro de que deseas restablecer a PENDIENTE a todas las familias de la lista? Esto pondrá los pases reales confirmados en 0.");
+        // 4. ELIMINAR INVITADO DE FIRESTORE (NUEVA FUNCIÓN)
+        window.eliminarInvitado = async function(idDocumento, nombreInvitado) {
+            const confirmarBorrado = confirm(`⚠️ ¿Estás seguro de que deseas eliminar por completo a "${nombreInvitado}" de la lista?`);
             
+            if (!confirmarBorrado) return;
+
+            try {
+                const docRef = doc(db, "invitados", idDocumento);
+                await deleteDoc(docRef);
+                console.log(`Eliminado con éxito: ${idDocumento}`);
+            } catch (error) {
+                console.error("Error al eliminar documento:", error);
+                alert("No se pudo eliminar el invitado.");
+            }
+        };
+
+        // 5. RESTABLECER TODO
+        btnResetAll.addEventListener('click', async () => {
+            const confirmacion = confirm("⚠️ ¿Estás seguro de cambiar a PENDIENTE a todos?");
             if (!confirmacion) return;
 
             try {
                 btnResetAll.innerText = "Procesando...";
                 btnResetAll.disabled = true;
-
                 const querySnapshot = await getDocs(collection(db, "invitados"));
-                const batch = writeBatch(db); // Usamos un lote (batch) para actualizar de un solo golpe eficiente
+                const batch = writeBatch(db);
 
                 querySnapshot.forEach((documento) => {
                     const docRef = doc(db, "invitados", documento.id);
-                    batch.update(docRef, {
-                        estado: 'Pendiente',
-                        pasesReales: 0
-                    });
+                    batch.update(docRef, { estado: 'Pendiente', pasesReales: 0 });
                 });
 
                 await batch.commit();
-                alert("🔄 Todos los invitados han sido restablecidos a 'Pendiente' con éxito.");
+                alert("🔄 Base de datos restablecida.");
             } catch (error) {
-                console.error("Error al restablecer la base de datos:", error);
-                alert("Ocurrió un error al intentar restablecer.");
+                console.error(error);
             } finally {
                 btnResetAll.innerText = "🔄 Restablecer Todo a Pendiente";
                 btnResetAll.disabled = false;
             }
         });
 
-        // 5. RENDERIZAR TABLA Y ACTUALIZAR ESTADÍSTICAS
+        // 6. RENDER INTERFAZ
         function actualizarInterfaz(invitados) {
             guestTableBody.innerHTML = '';
-
             let totalPasesAsignados = 0;
             let pasesConfirmados = 0;
             let pasesPendientes = 0;
 
             invitados.forEach(invitado => {
                 totalPasesAsignados += invitado.pasesAsignados;
-                
-                if (invitado.estado === 'Confirmado') {
-                    pasesConfirmados += invitado.pasesReales;
-                } else if (invitado.estado === 'Pendiente') {
-                    pasesPendientes += invitado.pasesAsignados;
-                }
+                if (invitado.estado === 'Confirmado') pasesConfirmados += invitado.pasesReales;
+                else if (invitado.estado === 'Pendiente') pasesPendientes += invitado.pasesAsignados;
 
                 const fila = `
                     <tr>
@@ -346,6 +350,9 @@
                                 <option value="Confirmado" ${invitado.estado === 'Confirmado' ? 'selected' : ''}>✅ Confirmado</option>
                                 <option value="Rechazado" ${invitado.estado === 'Rechazado' ? 'selected' : ''}>❌ Rechazado</option>
                             </select>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="eliminarInvitado('${invitado.id}', '${invitado.nombre.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>
                         </td>
                     </tr>
                 `;
