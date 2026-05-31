@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inyector de Datos - Firebase</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #212529; color: #fff; padding: 30px; text-align: center; }
+        .box { max-width: 600px; margin: 50px auto; background: #2c3034; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h1 { color: #6f42c1; }
+        .btn { background: #6f42c1; color: white; border: none; padding: 15px 30px; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        .btn:hover { background: #5a32a3; }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        #log { margin-top: 20px; text-align: left; max-height: 300px; overflow-y: auto; background: #1a1d20; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #0dfd0d; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>Inyector Masivo de Invitados</h1>
+        <p>Bautizo y Cumple Kiara</p>
+        <hr style="border-color: #444;">
+        <p>Este script insertará automáticamente los 55 registros de tu lista directo en Cloud Firestore.</p>
+        
+        <button id="btnIniciar" class="btn">🚀 Iniciar Inyección Masiva</button>
+
+        <div id="log">El sistema está listo para inyectar...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Credenciales de tu proyecto
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
+            authDomain: "bautizo-cumple-kiara.firebaseapp.com",
+            projectId: "bautizo-cumple-kiara",
+            storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
+            messagingSenderId: "761827758856",
+            appId: "1:761827758856:web:706812d34bfa118bb292bd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Lista de datos crudos procesada en un array de objetos listos para Firebase
+        const listaInvitados = [
+            { nombre: "Kory Cacho", pasesAsignados: 13, mesa: 12 }, // Se asigna a la 12 por defecto
+            { nombre: "Andres Rodas", pasesAsignados: 4, mesa: 11 },
+            { nombre: "Angel Abundio Correa", pasesAsignados: 1, mesa: 11 },
+            { nombre: "Briseño Gallardo Marjhori", pasesAsignados: 1, mesa: 4 },
+            { nombre: "Alva Montoya Jheremy", pasesAsignados: 1, mesa: 4 },
+            { nombre: "Katherine Chalan Briones", pasesAsignados: 1, mesa: 4 },
+            { nombre: "Wilman Cotrina", pasesAsignados: 3, mesa: 18 },
+            { nombre: "Ever Garcia Machuca", pasesAsignados: 3, mesa: 18 },
+            { nombre: "Hector Saldaña Diaz", pasesAsignados: 3, mesa: 14 },
+            { nombre: "Rodrigo Saldaña Abanto", pasesAsignados: 1, mesa: 14 },
+            { nombre: "Luis Fernando Saldaña Diaz", pasesAsignados: 4, mesa: 16 },
+            { nombre: "Carlos Armas Asenjo", pasesAsignados: 4, mesa: 16 },
+            { nombre: "Jesus Zamora Diaz", pasesAsignados: 3, mesa: 15 },
+            { nombre: "Juan Mera Silva", pasesAsignados: 3, mesa: 14 },
+            { nombre: "Pepe Saldaña Delgado", pasesAsignados: 4, mesa: 15 },
+            { nombre: "Cesar Cotrina", pasesAsignados: 3, mesa: 17 },
+            { nombre: "Fredy Azañero", pasesAsignados: 4, mesa: 17 },
+            { nombre: "Fanny Paredes", pasesAsignados: 1, mesa: 8 },
+            { nombre: "Edith Mendoza", pasesAsignados: 2, mesa: 8 },
+            { nombre: "David Ruiz", pasesAsignados: 3, mesa: 8 },
+            { nombre: "Jambo Chingay Nicool", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Tingal de la Cruz Joselin", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Valencia Castaneda Yvette", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Chilon Ocas Daniel", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Angaspil Ortiz Gabriela", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Vergara Sanchez Mar", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Cotrina Diaz Cesar", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Cordova Vera Claudio", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Cerquin Castrejon Keysi", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Mendoza Sanchez Paco", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Alcantara Chacon Dayer", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Llanos Saavedra Jean Franco", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Cercado Cruzado Gloria", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Yopla Miranda Jenny", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Ishpilco Ernandez Piero", pasesAsignados: 1, mesa: 20 },
+            { nombre: "Garcia Banda Gaudy", pasesAsignados: 1, mesa: 19 },
+            { nombre: "Carlos Chalan Llanos", pasesAsignados: 1, mesa: 2 },
+            { nombre: "Jorge Chalan", pasesAsignados: 6, mesa: 1 },
+            { nombre: "Jaime Chalan", pasesAsignados: 5, mesa: 1 },
+            { nombre: "Abelino Llanos", pasesAsignados: 2, mesa: 5 },
+            { nombre: "Kenny Llanos Rimarachin", pasesAsignados: 4, mesa: 7 },
+            { nombre: "José Fernando Llanos Rimarachin", pasesAsignados: 4, mesa: 5 },
+            { nombre: "Jonathan Llanos Rimarachin", pasesAsignados: 2, mesa: 5 },
+            { nombre: "Baciano Llanos Murga", pasesAsignados: 1, mesa: 6 },
+            { nombre: "Diana Llanos Teran", pasesAsignados: 2, mesa: 6 },
+            { nombre: "William Llanos Teran", pasesAsignados: 4, mesa: 6 },
+            { nombre: "Luis Alberto Chumpitas Teran", pasesAsignados: 3, mesa: 10 },
+            { nombre: "Isabel Llanos Murga", pasesAsignados: 2, mesa: 7 },
+            { nombre: "Ronal Chilon", pasesAsignados: 3, mesa: 8 },
+            { nombre: "Wilman Lopez Llanos", pasesAsignados: 4, mesa: 10 },
+            { nombre: "Jorge Luis Villarreal", pasesAsignados: 5, mesa: 11 },
+            { nombre: "Cristobal Gutierrez", pasesAsignados: 2, mesa: 7 },
+            { nombre: "Segundo Quiroz", pasesAsignados: 2, mesa: 2 },
+            { nombre: "Rosario Quiliche", pasesAsignados: 2, mesa: 2 },
+            { nombre: "Gladys Linares Alaya", pasesAsignados: 2, mesa: 2 },
+            { nombre: "Alex Fernando Quiliche Rudas", pasesAsignados: 1, mesa: 3 },
+            { nombre: "Hanz Chavez Marin", pasesAsignados: 1, mesa: 3 },
+            { nombre: "Segundo Chalan Valencia", pasesAsignados: 1, mesa: 1 },
+            { nombre: "Cesar Chalan Llanos", pasesAsignados: 1, mesa: 1 },
+            { nombre: "Luis Chuquitucto", pasesAsignados: 5, mesa: 9 },
+            { nombre: "Grupo LOS MÍSTICOS", pasesAsignados: 6, mesa: 21 }
+        ];
+
+        const btnIniciar = document.getElementById('btnIniciar');
+        const logBox = document.getElementById('log');
+
+        btnIniciar.addEventListener('click', async () => {
+            btnIniciar.disabled = true;
+            logBox.innerHTML = "⏳ Iniciando subida masiva a Firestore...<br>";
+
+            let correctos = 0;
+
+            for (let i = 0; i < listaInvitados.length; i++) {
+                const item = listaInvitados[i];
+                try {
+                    // Subir el documento con los valores predeterminados de un modo Admin inicial
+                    await addDoc(collection(db, "invitados"), {
+                        nombre: item.nombre,
+                        mesa: item.mesa,
+                        pasesAsignados: item.pasesAsignados,
+                        pasesReales: 0, // Inicia en 0 hasta que confirmen asistencias reales
+                        estado: "Pendiente" // Todos entran como Pendientes por defecto
+                    });
+                    
+                    correctos++;
+                    logBox.innerHTML += `✅ (${correctos}/${listaInvitados.length}) Insertado: ${item.nombre}<br>`;
+                    logBox.scrollTop = logBox.scrollHeight; // Auto-scroll al fondo
+                } catch (error) {
+                    console.error("Error con: " + item.nombre, error);
+                    logBox.innerHTML += `<span style="color:red;">❌ Error al subir a: ${item.nombre}</span><br>`;
+                }
+            }
+
+            logBox.innerHTML += `<br>🎉 **PROCESO TERMINADO**. Se insertaron exitosamente ${correctos} invitados. Puedes cerrar esta pestaña.`;
+            btnIniciar.innerText = "¡Inyección Finalizada!";
+        });
+    </script>
+</body>
+</html>
