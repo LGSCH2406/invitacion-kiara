@@ -3,467 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bautizo y Cumpleaños - Kiara Jimena</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+    <title>Panel Admin - Bautizo y Cumple Kiara</title>
     <style>
         :root {
-            --bg-color: #fcfbf7;
-            --card-bg: #ffffff;
-            --primary-color: #b89742;
-            --primary-hover: #9a7e35;
-            --text-main: #333333;
-            --text-muted: #666666;
-            --accent-light: #f5f0e1;
-            --dark-btn: #222222;
+            --primary: #6f42c1;
+            --primary-hover: #5a32a3;
+            --accent: #ffb703;
+            --bg: #f4f6f9;
+            --dark: #212529;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --danger-hover: #bd2130;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            overflow-x: hidden;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
         }
 
-        /* Fondo Animado */
-        .animated-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; overflow: hidden;
-            background: radial-gradient(circle at 50% 50%, #ffffff, var(--bg-color));
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .particle {
-            position: absolute;
-            background: linear-gradient(135deg, rgba(184, 151, 66, 0.2), rgba(245, 240, 225, 0.4));
-            border-radius: 50%;
-            animation: floatUp 12s infinite linear;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(105vh) scale(1); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-5vh) scale(0.8); opacity: 0; }
-        }
-
-        /* Layout split-screen responsivo */
-        .main-wrapper {
+        header {
             display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 550px;
-            margin: 20px auto;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(184, 151, 66, 0.08);
-            border: 1px solid rgba(184, 151, 66, 0.15);
-            padding: 35px 25px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .hero-section { text-align: center; margin-bottom: 35px; }
+        header h1 { color: var(--primary); margin: 0; font-size: 24px; }
+        header p { margin: 5px 0 0 0; color: #666; }
 
-        .event-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--accent-light), #fff);
-            color: var(--primary-color);
-            padding: 6px 18px; border-radius: 50px;
-            font-size: 0.85rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 2px;
-            margin-bottom: 15px; border: 1px solid rgba(184, 151, 66, 0.2);
-        }
-
-        .main-title {
-            font-family: 'Great Vibes', cursive;
-            font-size: 3.8rem; color: var(--primary-color);
-            line-height: 1.1; margin-bottom: 15px;
-        }
-
-        .subtitle { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
-
-        /* Cuenta Regresiva */
-        .countdown-container { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
-        .countdown-item {
-            background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(184, 151, 66, 0.25);
-            padding: 12px 8px; border-radius: 14px; min-width: 68px; text-align: center;
-        }
-        .countdown-item span { display: block; font-size: 1.6rem; font-weight: 600; color: var(--primary-color); }
-        .countdown-item small { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
-
-        /* Información General */
-        .info-block { padding: 15px 0; text-align: center; }
-        .info-icon { font-size: 2rem; margin-bottom: 8px; }
-        .section-subtitle { font-size: 0.85rem; text-transform: uppercase; color: var(--primary-color); letter-spacing: 1px; }
-        .highlight-text { font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
-        .sub-text { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
-
-        .elegant-separator { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
-        .elegant-separator::before, .elegant-separator::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(184, 151, 66, 0.4), transparent); }
-        .diamond { width: 8px; height: 8px; background-color: var(--primary-color); transform: rotate(45deg); margin: 0 10px; }
-
-        .honor-vertical-block { text-align: center; margin: 15px 0; }
-        .honor-title { font-size: 0.85rem; text-transform: uppercase; color: var(--primary-color); margin-bottom: 8px; letter-spacing: 1px; }
-        .name-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 4px; }
-
-        .btn-location {
-            display: inline-block; margin-top: 14px; padding: 10px 20px;
-            color: var(--primary-color); border: 1px solid var(--primary-color);
-            border-radius: 8px; font-size: 0.85rem; text-decoration: none; font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-location:hover { background-color: var(--primary-color); color: white; }
-
-        .divider { border: 0; height: 1px; background: linear-gradient(to right, transparent, var(--primary-color), transparent); margin: 35px 0; }
-
-        /* Buscador */
-        .rsvp-section h2 { font-size: 1.5rem; margin-bottom: 10px; color: var(--primary-color); text-align: center; }
-        .rsvp-notice { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 25px; text-align: center; }
-        
-        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .input-search {
-            flex: 1; padding: 14px; border: 1.5px solid #e0e0e0; border-radius: 10px;
-            font-size: 0.95rem; background-color: #fafafa; outline: none;
-        }
-        .input-search:focus { border-color: var(--primary-color); background-color: #fff; }
-        
-        .btn-search {
-            padding: 0 24px; background: linear-gradient(135deg, var(--primary-color) 0%, #a08235 100%);
-            color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s;
-        }
-        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(184, 151, 66, 0.3); }
-
-        /* Ticket Premium */
-        .ticket-card {
-            background: #ffffff; border: 1px solid rgba(184, 151, 66, 0.3);
-            border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            margin-top: 20px; text-align: center;
-        }
-        .ticket-header { background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%); padding: 20px; border-bottom: 1px dashed rgba(184, 151, 66, 0.3); }
-        .ticket-badge { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--primary-color); font-weight: 600; }
-        .ticket-main-title { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary-color); margin-top: 5px; }
-        
-        .ticket-body { padding: 25px 20px; }
-        .ticket-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
-        .ticket-guest-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--primary-color); font-style: italic; margin: 5px 0 20px 0; }
-        
-        .ticket-meta-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            border-top: 1px solid #f5f0e1; border-bottom: 1px solid #f5f0e1; padding: 15px 0; margin-bottom: 20px;
-        }
-        .meta-label { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .ticket-footer { background-color: #fafafa; padding: 15px; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid #f0f0f0; }
-
-        /* Botones de Acción Elegantes (Sin verde/rojo) */
-        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.3s; }
-        
-        .btn-confirm-elegant {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #a08235 100%);
+        .btn-reset {
+            background-color: var(--danger);
             color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
         }
-        .btn-confirm-elegant:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(184, 151, 66, 0.25); }
+        .btn-reset:hover { background-color: var(--danger-hover); }
 
-        .btn-reject-elegant {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid #dcd6c5;
-            margin-top: 8px;
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
-        .btn-reject-elegant:hover { background-color: rgba(0,0,0,0.02); color: var(--text-main); }
 
-        /* Botón de Descargar Imagen */
-        .btn-download-image {
-            background-color: var(--dark-btn);
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+        }
+
+        .stat-card.confirmados { border-left-color: var(--success); }
+        .stat-card.pendientes { border-left-color: var(--warning); }
+
+        .stat-card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; }
+        .stat-card p { margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: var(--dark); }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2.8fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .card h2 { margin-top: 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+
+        .btn {
+            background-color: var(--primary); color: white; padding: 12px; border: none; border-radius: 4px;
+            cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { background-color: var(--primary); color: white; }
+
+        .select-status-inline {
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .status-Pendiente { background-color: #fff3cd; color: #856404; }
+        .status-Confirmado { background-color: #d4edda; color: #155724; }
+        .status-Rechazado { background-color: #f8d7da; color: #721c24; }
+
+        /* Botón eliminar en la tabla */
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: var(--danger);
             color: white;
-            display: none; /* Se activa tras confirmar */
-        }
-        .btn-download-image:hover { background-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(184, 151, 66, 0.3); }
-        
-        /* Mensaje de feedback adaptado a la paleta */
-        .status-feedback { 
-            margin-top: 15px; padding: 14px; border-radius: 10px; 
-            font-weight: 600; text-align: center; font-size: 0.95rem; display: none; 
-            border: 1px solid rgba(184, 151, 66, 0.2);
-            background-color: var(--accent-light);
-            color: #7c6221;
-        }
-
-        @media (min-width: 992px) {
-            .main-wrapper { flex-direction: row; max-width: 1000px; padding: 0; overflow: hidden; border-radius: 24px; }
-            .hero-section { width: 45%; background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%); margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 40px; border-right: 1px solid rgba(184, 151, 66, 0.15); }
-            .content-section { width: 55%; padding: 40px; max-height: 85vh; overflow-y: auto; }
         }
     </style>
 </head>
 <body>
 
-    <div class="animated-bg" id="animatedBg"></div>
-
-    <div class="main-wrapper">
-        
-        <header class="hero-section">
-            <div class="event-badge">Doble Celebración</div>
-            <h1 class="main-title">Bautizo & Cumpleaños</h1>
-            <p style="font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #b89742; font-style: italic; font-weight: 600; margin: 15px 0;">
-                de nuestra hermosa anfitriona:<br>
-                <span style="font-family: 'Montserrat', sans-serif; font-style: normal; font-size: 1.3rem; color: #1a1a1a; display: block; margin-top: 5px; font-weight: 600;">KIARA JIMENA</span>
-            </p>
-            <p class="subtitle">Acompáñanos a celebrar este día tan especial y lleno de bendiciones.</p>
-            
-            <div class="countdown-container">
-                <div class="countdown-item"><span id="days">00</span><small>Días</small></div>
-                <div class="countdown-item"><span id="hours">00</span><small>Horas</small></div>
-                <div class="countdown-item"><span id="minutes">00</span><small>Min.</small></div>
-                <div class="countdown-item"><span id="seconds">00</span><small>Seg.</small></div>
+    <div class="dashboard">
+        <header>
+            <div>
+                <h1>Bautizo y Cumple Kiara</h1>
+                <p>Modo Administrador - Control Total de Invitados</p>
             </div>
+            <button id="btnResetAll" class="btn-reset">🔄 Restablecer Todo a Pendiente</button>
         </header>
 
-        <main class="content-section">
-            <section class="wedding-info-container">
-                <div class="info-block">
-                    <div class="info-icon">📅</div>
-                    <h3 class="section-subtitle">Fecha & Hora</h3>
-                    <p class="highlight-text">Sábado, 13 de Junio de 2026</p>
-                    <p class="sub-text">10:00 AM</p>
-                </div>
-                
-                <div class="elegant-separator"><span class="diamond"></span></div>
-                
-                <div class="honor-vertical-block">
-                    <h4 class="honor-title">Con la bendición de sus Padres</h4>
-                    <p class="name-text">Jorge Luis Saldaña Díaz</p>
-                    <p class="name-text">Isabel Chalan Llanos</p>
-                </div>
-                
-                <div class="elegant-separator"><span class="diamond"></span></div>
-                
-                <div class="honor-vertical-block">
-                    <h4 class="honor-title">Sus Padrinos</h4>
-                    <p class="name-text">Carlos Orlando Chalan Llanos</p>
-                    <p class="name-text">Cory Cacho Briones</p>
-                </div>
-                
-                <div class="elegant-separator"><span class="diamond"></span></div>
-                
-                <div class="info-block">
-                    <div class="info-icon">📍</div>
-                    <h3 class="section-subtitle">Lugar de Recepción</h3>
-                    <p class="highlight-text">Local de Eventos Castope</p>
-                    <p class="sub-text">Tartar, Cajamarca</p>
-                    <a href="https://maps.app.goo.gl/GjE814LRid8ZKrGR9" target="_blank" class="btn-location">Ver en Google Maps 🗺️</a>
-                </div>
-            </section>
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Familias</h3>
+                <p id="statTotalInvitados">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Pases Asignados</h3>
+                <p id="statTotalPases">0</p>
+            </div>
+            <div class="stat-card confirmados">
+                <h3>Pases Confirmados</h3>
+                <p id="statPasesConfirmados">0</p>
+            </div>
+            <div class="stat-card pendientes">
+                <h3>Pases Pendientes</h3>
+                <p id="statPasesPendientes">0</p>
+            </div>
+        </div>
 
-            <hr class="divider">
-
-            <section class="rsvp-section">
-                <h2>Confirmación de Asistencia</h2>
-                <p class="rsvp-notice">Ingresa tu nombre para verificar tu pase personal en nuestra lista.</p>
-                
-                <div class="search-container">
-                    <input type="text" id="inputSearch" class="input-search" placeholder="Ej. Andres Rodas">
-                    <button id="btnSearch" class="btn-search">Buscar</button>
-                </div>
-
-                <div id="ticketContainer" style="display: none;">
-                    
-                    <div id="captureArea">
-                        <div class="ticket-card">
-                            <div class="ticket-header">
-                                <span class="ticket-badge">Pase Digital Oficial</span>
-                                <h2 class="ticket-main-title">Bautizo & Cumpleaños</h2>
-                            </div>
-                            <div class="ticket-body">
-                                <p class="ticket-label">Invitado Especial</p>
-                                <h3 class="ticket-guest-name" id="ticketGuestName">-</h3>
-                                
-                                <div class="ticket-meta-grid">
-                                    <div>
-                                        <span class="meta-label">Ubicación</span>
-                                        <strong style="color:#b89742; font-size:1.1rem;" id="ticketTable">-</strong>
-                                    </div>
-                                    <div>
-                                        <span class="meta-label">Total Pases</span>
-                                        <strong id="ticketPasses">0 Pases</strong>
-                                    </div>
-                                </div>
-                                
-                                <div style="display:flex; justify-content:center; margin-top:20px;">
-                                    <div id="qrcode" style="background:#fff; padding:5px;"></div>
-                                </div>
-                            </div>
-                            <div class="ticket-footer">
-                                <p>📅 Sábado, 13 de Junio de 2026 - 10:00 AM</p>
-                                <p>📍 Local de Eventos Castope - Tartar</p>
-                            </div>
-                        </div>
+        <div class="main-content">
+            <div class="card">
+                <h2>Registrar Nuevo Invitado</h2>
+                <form id="guestForm">
+                    <div class="form-group">
+                        <label for="fullName">Nombre de la Familia / Invitado</label>
+                        <input type="text" id="fullName" placeholder="Ej. Familia Mendoza Ramos" required>
                     </div>
-                    
-                    <div id="actionsBlock" style="margin-top:15px;">
-                        <button id="btnConfirm" class="btn-action btn-confirm-elegant">✨ Confirmar Asistencia</button>
-                        <button id="btnReject" class="btn-action btn-reject-elegant">No podré asistir</button>
+                    <div class="form-group">
+                        <label for="tableNumber">Número de Mesa</label>
+                        <input type="number" id="tableNumber" placeholder="Ej. 4" min="1" required>
                     </div>
+                    <div class="form-group">
+                        <label for="pasesAsignados">Pases Asignados</label>
+                        <input type="number" id="pasesAsignados" value="1" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Estado Inicial</label>
+                        <select id="status">
+                            <option value="Pendiente">Pendiente (No ha respondido)</option>
+                            <option value="Confirmado">Confirmado (Asistirá)</option>
+                            <option value="Rechazado">Rechazado (No asistirá)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Guardar en Cloud Firestore</button>
+                </form>
+            </div>
 
-                    <button id="btnDownloadImage" class="btn-action btn-download-image">📥 Descargar Pase como Imagen</button>
-
-                    <div id="statusFeedback" class="status-feedback"></div>
-                </div>
-            </section>
-        </main>
+            <div class="card table-container">
+                <h2>Lista de Control de Invitados</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invitado / Familia</th>
+                            <th>Mesa</th>
+                            <th>Pases Asignados</th>
+                            <th>Pases Reales</th>
+                            <th>Estado (Cambio Directo)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guestTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- SCRIPT DE INTERACCIÓN REVISADO Y CORREGIDO -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, writeBatch, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
-        authDomain: "bautizo-cumple-kiara.firebaseapp.com",
-        projectId: "bautizo-cumple-kiara",
-        storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
-        messagingSenderId: "761827758856",
-        appId: "1:761827758856:web:706812d34bfa118bb292bd"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
+            authDomain: "bautizo-cumple-kiara.firebaseapp.com",
+            projectId: "bautizo-cumple-kiara",
+            storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
+            messagingSenderId: "761827758856",
+            appId: "1:761827758856:web:706812d34bfa118bb292bd"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    let currentDocId = null;
-    let currentPassesCount = 0;
-    let guestRawName = "";
+        const guestForm = document.getElementById('guestForm');
+        const guestTableBody = document.getElementById('guestTableBody');
+        const btnResetAll = document.getElementById('btnResetAll');
 
-    // Función para normalizar texto (quita tildes y símbolos)
-    function normalizar(texto) {
-        return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-    }
+        // 1. ESCUCHAR EN TIEMPO REAL
+        onSnapshot(collection(db, "invitados"), (snapshot) => {
+            let listaInvitados = [];
+            snapshot.forEach((doc) => {
+                listaInvitados.push({ id: doc.id, ...doc.data() });
+            });
+            actualizarInterfaz(listaInvitados);
+        });
 
-    // Función para medir qué tan parecido es un nombre (tolerancia a errores)
-    function levenshtein(a, b) {
-        if (a.length === 0) return b.length;
-        if (b.length === 0) return a.length;
-        let row = Array.from(Array(a.length + 1).keys());
-        for (let i = 1; i <= b.length; i++) {
-            let prev = i;
-            for (let j = 1; j <= a.length; j++) {
-                let val;
-                if (b.charAt(i - 1) === a.charAt(j - 1)) val = row[j - 1];
-                else val = Math.min(row[j - 1] + 1, prev + 1, row[j] + 1);
-                row[j - 1] = prev; prev = val;
+        // 2. AGREGAR INDIVIDUAL
+        guestForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('fullName').value;
+            const mesa = parseInt(document.getElementById('tableNumber').value);
+            const pasesAsignados = parseInt(document.getElementById('pasesAsignados').value);
+            const estado = document.getElementById('status').value;
+            let pasesReales = (estado === 'Confirmado') ? pasesAsignados : 0;
+
+            try {
+                await addDoc(collection(db, "invitados"), { nombre, mesa, pasesAsignados, pasesReales, estado });
+                guestForm.reset();
+                document.getElementById('pasesAsignados').value = 1;
+            } catch (error) {
+                console.error("Error al guardar: ", error);
             }
-            row[a.length] = prev;
-        }
-        return row[a.length];
-    }
-
-    // BUSCADOR INTELIGENTE
-    document.getElementById('btnSearch').addEventListener('click', async () => {
-        const input = document.getElementById('inputSearch').value.trim();
-        if(!input) return alert("Ingresa un nombre.");
-
-        document.getElementById('btnSearch').innerText = "Buscando...";
-        const querySnapshot = await getDocs(collection(db, "invitados"));
-        
-        let match = null;
-        const palabrasInput = input.toLowerCase().split(' ');
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const palabrasBD = data.nombre.toLowerCase().split(' ');
-
-            // Comprobamos si al menos una palabra coincide con tolerancia de 1 error
-            const coincide = palabrasInput.some(pU => 
-                palabrasBD.some(pB => levenshtein(normalizar(pU), normalizar(pB)) <= 1)
-            );
-
-            if(coincide) match = { id: doc.id, ...data };
         });
 
-        if(match) {
-            currentDocId = match.id;
-            currentPassesCount = match.pasesAsignados;
-            guestRawName = match.nombre;
+        // 3. ACTUALIZAR ESTADO DESDE LA TABLA
+        window.cambiarEstadoIndividual = async function(idDocumento, nuevoEstado, pasesAsignados) {
+            const documentoRef = doc(db, "invitados", idDocumento);
+            let nuevosPasesReales = (nuevoEstado === 'Confirmado') ? parseInt(pasesAsignados) : 0;
 
-            document.getElementById('ticketGuestName').innerText = match.nombre;
-            document.getElementById('ticketPasses').innerText = `${match.pasesAsignados} Personas`;
-            document.getElementById('ticketTable').innerText = `Mesa ${match.mesa}`;
+            try {
+                await updateDoc(documentoRef, { estado: nuevoEstado, pasesReales: nuevosPasesReales });
+            } catch (error) {
+                console.error("Error al actualizar estado:", error);
+            }
+        };
+
+        // 4. ELIMINAR INVITADO DE FIRESTORE (NUEVA FUNCIÓN)
+        window.eliminarInvitado = async function(idDocumento, nombreInvitado) {
+            const confirmarBorrado = confirm(`⚠️ ¿Estás seguro de que deseas eliminar por completo a "${nombreInvitado}" de la lista?`);
             
-            // QR seguro
-            const qrcodeDiv = document.getElementById('qrcode');
-            qrcodeDiv.replaceChildren();
-            setTimeout(() => {
-                new QRCode(qrcodeDiv, {
-                    text: `INVITADO: ${match.nombre} | PASES: ${match.pasesAsignados}`,
-                    width: 140, height: 140, colorDark: "#b89742", colorLight: "#ffffff", correctLevel: 3
+            if (!confirmarBorrado) return;
+
+            try {
+                const docRef = doc(db, "invitados", idDocumento);
+                await deleteDoc(docRef);
+                console.log(`Eliminado con éxito: ${idDocumento}`);
+            } catch (error) {
+                console.error("Error al eliminar documento:", error);
+                alert("No se pudo eliminar el invitado.");
+            }
+        };
+
+        // 5. RESTABLECER TODO
+        btnResetAll.addEventListener('click', async () => {
+            const confirmacion = confirm("⚠️ ¿Estás seguro de cambiar a PENDIENTE a todos?");
+            if (!confirmacion) return;
+
+            try {
+                btnResetAll.innerText = "Procesando...";
+                btnResetAll.disabled = true;
+                const querySnapshot = await getDocs(collection(db, "invitados"));
+                const batch = writeBatch(db);
+
+                querySnapshot.forEach((documento) => {
+                    const docRef = doc(db, "invitados", documento.id);
+                    batch.update(docRef, { estado: 'Pendiente', pasesReales: 0 });
                 });
-            }, 100);
 
-            document.getElementById('ticketContainer').style.display = "block";
-            renderizarEstadoRSVP(match.estado);
-        } else {
-            alert("No se encontró el invitado. Intenta escribir el nombre con menos errores o solo el apellido.");
-        }
-        document.getElementById('btnSearch').innerText = "Buscar";
-    });
-
-    // LÓGICA DE ESTADOS
-    function renderizarEstadoRSVP(estado) {
-        const actionsBlock = document.getElementById('actionsBlock');
-        const btnDownload = document.getElementById('btnDownloadImage');
-        const feedback = document.getElementById('statusFeedback');
-
-        if(estado === 'Confirmado') {
-            actionsBlock.style.display = "none";
-            btnDownload.style.display = "block";
-            feedback.style.display = "block";
-            feedback.innerText = "✨ ¡Asistencia Confirmada!";
-        } else {
-            actionsBlock.style.display = "block";
-            btnDownload.style.display = "none";
-            feedback.style.display = "none";
-        }
-    }
-
-    document.getElementById('btnConfirm').addEventListener('click', async () => {
-        if(!currentDocId) return;
-        await updateDoc(doc(db, "invitados", currentDocId), { estado: 'Confirmado' });
-        renderizarEstadoRSVP('Confirmado');
-    });
-
-    document.getElementById('btnReject').addEventListener('click', async () => {
-        if(!currentDocId) return;
-        await updateDoc(doc(db, "invitados", currentDocId), { estado: 'Rechazado' });
-        renderizarEstadoRSVP('Rechazado');
-    });
-
-    // DESCARGA IMAGEN
-    document.getElementById('btnDownloadImage').addEventListener('click', () => {
-        const area = document.getElementById('captureArea');
-        area.style.width = "450px";
-        html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
-            area.style.width = "100%";
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = `Pase_${guestRawName}.png`;
-            link.click();
+                await batch.commit();
+                alert("🔄 Base de datos restablecida.");
+            } catch (error) {
+                console.error(error);
+            } finally {
+                btnResetAll.innerText = "🔄 Restablecer Todo a Pendiente";
+                btnResetAll.disabled = false;
+            }
         });
-    });
 
-    // Cuenta regresiva
-    setInterval(() => {
-        const diff = new Date(2026, 5, 13, 10, 0, 0) - new Date();
-        if (diff > 0) {
-            document.getElementById('days').innerText = Math.floor(diff / 86400000);
-            document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000);
+        // 6. RENDER INTERFAZ
+        function actualizarInterfaz(invitados) {
+            guestTableBody.innerHTML = '';
+            let totalPasesAsignados = 0;
+            let pasesConfirmados = 0;
+            let pasesPendientes = 0;
+
+            invitados.forEach(invitado => {
+                totalPasesAsignados += invitado.pasesAsignados;
+                if (invitado.estado === 'Confirmado') pasesConfirmados += invitado.pasesReales;
+                else if (invitado.estado === 'Pendiente') pasesPendientes += invitado.pasesAsignados;
+
+                const fila = `
+                    <tr>
+                        <td><strong>${invitado.nombre}</strong></td>
+                        <td>Mesa ${invitado.mesa}</td>
+                        <td>${invitado.pasesAsignados} pases</td>
+                        <td><strong>${invitado.estado === 'Confirmado' ? invitado.pasesReales : '-'}</strong></td>
+                        <td>
+                            <select 
+                                class="select-status-inline status-${invitado.estado}" 
+                                onchange="cambiarEstadoIndividual('${invitado.id}', this.value, '${invitado.pasesAsignados}')"
+                            >
+                                <option value="Pendiente" ${invitado.estado === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                                <option value="Confirmado" ${invitado.estado === 'Confirmado' ? 'selected' : ''}>✅ Confirmado</option>
+                                <option value="Rechazado" ${invitado.estado === 'Rechazado' ? 'selected' : ''}>❌ Rechazado</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="eliminarInvitado('${invitado.id}', '${invitado.nombre.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+                guestTableBody.innerHTML += fila;
+            });
+
+            document.getElementById('statTotalInvitados').innerText = invitados.length;
+            document.getElementById('statTotalPases').innerText = totalPasesAsignados;
+            document.getElementById('statPasesConfirmados').innerText = pasesConfirmados;
+            document.getElementById('statPasesPendientes').innerText = pasesPendientes;
         }
-    }, 1000);
-</script>
+    </script>
 </body>
 </html>
