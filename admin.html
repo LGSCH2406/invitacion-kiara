@@ -458,7 +458,7 @@
                     batch.update(doc(db, "invitados", documento.id), {
                         estado: "Pendiente",
                         pasesReales
-                        : 0
+                            : 0
                     });
                 });
 
@@ -494,12 +494,27 @@
         function renderizar(invitados) {
             const body = document.getElementById('guestTableBody');
             body.innerHTML = '';
-            let totalPases = 0, conf = 0, pend = 0;
+            let totalPases = 0;
+            let conf = 0;
+            let pend = 0;
 
             invitados.forEach(i => {
-                totalPases += i.pasesAsignados;
-                if (i.estado === 'Confirmado') conf += i.pasesReales;
-                else if (i.estado === 'Pendiente') pend += i.pasesAsignados;
+
+                totalPases += Number(i.pasesAsignados || 0);
+
+                if (i.estado === 'Confirmado') {
+                    conf += Number(i.pasesReales || 0);
+                }
+
+                if (i.estado === 'Pendiente') {
+                    pend += Number(i.pasesAsignados || 0);
+                }
+
+                console.log(
+                    i.nombre,
+                    i.estado,
+                    i.pasesReales
+                );
 
                 body.innerHTML += `
             <tr>
