@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bautizo y Cumpleaños - Kiara Jimena</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -447,30 +448,36 @@
         }
 
         @media (min-width: 992px) {
+
             .main-wrapper {
+                display: flex;
                 flex-direction: row;
-                max-width: 1000px;
+                /* ← IMPORTANTE */
+                max-width: 1200px;
+                width: 95%;
+                min-height: 90vh;
                 padding: 0;
                 overflow: hidden;
-                border-radius: 24px;
             }
 
             .hero-section {
                 width: 45%;
-                background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%);
                 margin-bottom: 0;
+                padding: 50px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                padding: 40px;
-                border-right: 1px solid rgba(184, 151, 66, 0.15);
+                background: linear-gradient(135deg,
+                        var(--accent-light) 0%,
+                        #ffffff 100%);
+                border-right: 1px solid rgba(184, 151, 66, .15);
             }
 
             .content-section {
                 width: 55%;
                 padding: 40px;
-                max-height: 85vh;
                 overflow-y: auto;
+                max-height: 90vh;
             }
         }
     </style>
@@ -607,6 +614,27 @@
                     <div id="statusFeedback" class="status-feedback"></div>
                 </div>
             </section>
+            <div style="text-align: center; margin: 40px 0; padding: 20px;">
+                <a href="admin.html" style="
+            background-color: #ffffff;
+            color: #b89742;
+            padding: 12px 25px;
+            border: 2px solid #b89742;
+            border-radius: 30px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(184, 151, 66, 0.2);
+            transition: all 0.3s ease;
+            display: inline-block;
+        " onmouseover="this.style.backgroundColor='#b89742'; this.style.color='#ffffff'; this.style.transform='scale(1.05)';"
+                    onmouseout="this.style.backgroundColor='#ffffff'; this.style.color='#b89742'; this.style.transform='scale(1)';">
+                    ⚙️ ADMINISTRADOR
+                </a>
+            </div>
         </main>
     </div>
 
@@ -942,27 +970,7 @@
             }
         }, 1000);
     </script>
-    <div style="text-align: center; margin: 40px 0; padding: 20px;">
-        <a href="admin.html" style="
-            background-color: #ffffff;
-            color: #b89742;
-            padding: 12px 25px;
-            border: 2px solid #b89742;
-            border-radius: 30px;
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 4px 15px rgba(184, 151, 66, 0.2);
-            transition: all 0.3s ease;
-            display: inline-block;
-        " onmouseover="this.style.backgroundColor='#b89742'; this.style.color='#ffffff'; this.style.transform='scale(1.05)';"
-            onmouseout="this.style.backgroundColor='#ffffff'; this.style.color='#b89742'; this.style.transform='scale(1)';">
-            ⚙️ ADMINISTRADOR
-        </a>
-    </div>
+
 </body>
 
 </html>
