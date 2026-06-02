@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bautizo y Cumple Kiara</title>
+    <title>Bautizo y Cumple Kiara</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #6f42c1;
@@ -18,11 +27,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--dark);
-            margin: 0;
-            padding: 20px;
+            font-family: 'Montserrat', sans-serif;
+            background: #fcfbf7;
         }
 
         .dashboard {
@@ -39,11 +45,8 @@
             background: white;
             padding: 15px 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-
-        header h1 { color: var(--primary); margin: 0; font-size: 24px; }
-        header p { margin: 5px 0 0 0; color: #666; }
 
         .btn-reset {
             background-color: var(--danger);
@@ -53,9 +56,7 @@
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
         }
-        .btn-reset:hover { background-color: var(--danger-hover); }
 
         .stats-container {
             display: grid;
@@ -69,15 +70,17 @@
             padding: 15px;
             border-radius: 8px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             border-left: 5px solid var(--primary);
         }
 
-        .stat-card.confirmados { border-left-color: var(--success); }
-        .stat-card.pendientes { border-left-color: var(--warning); }
+        .stat-card.confirmados {
+            border-left-color: var(--success);
+        }
 
-        .stat-card h3 { margin: 0; font-size: 14px; color: #666; text-transform: uppercase; }
-        .stat-card p { margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: var(--dark); }
+        .stat-card.pendientes {
+            border-left-color: var(--warning);
+        }
 
         .main-content {
             display: grid;
@@ -86,48 +89,77 @@
         }
 
         @media (max-width: 1000px) {
-            .main-content { grid-template-columns: 1fr; }
+            .main-content {
+                grid-template-columns: 1fr;
+            }
         }
 
         .card {
             background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             height: fit-content;
         }
 
-        .card h2 { margin-top: 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
 
         .btn {
-            background-color: var(--primary); color: white; padding: 12px; border: none; border-radius: 4px;
-            cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s;
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
-        .btn:hover { background-color: var(--primary-hover); }
 
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-        th { background-color: var(--primary); color: white; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
 
         .select-status-inline {
-            padding: 5px 8px;
+            padding: 5px;
             border-radius: 4px;
             font-weight: bold;
-            border: 1px solid #ccc;
-            cursor: pointer;
         }
-        .status-Pendiente { background-color: #fff3cd; color: #856404; }
-        .status-Confirmado { background-color: #d4edda; color: #155724; }
-        .status-Rechazado { background-color: #f8d7da; color: #721c24; }
 
-        /* Botón eliminar en la tabla */
+        .status-Pendiente {
+            background-color: #fff3cd;
+        }
+
+        .status-Confirmado {
+            background-color: #d4edda;
+        }
+
+        .status-Rechazado {
+            background-color: #f8d7da;
+        }
+
         .btn-delete {
             background-color: transparent;
             color: var(--danger);
@@ -135,24 +167,147 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
         }
-        .btn-delete:hover {
-            background-color: var(--danger);
+
+        #modalLogin {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .65);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .swal2-container {
+            z-index: 10000 !important;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(184, 151, 66, .2);
+            box-shadow: 0 20px 50px rgba(184, 151, 66, .15);
+            text-align: center;
+        }
+
+        .login-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 50px;
+            background: #f5f0e1;
+            color: #b89742;
+            font-size: .8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .login-title {
+            font-family: 'Playfair Display', serif;
+            color: #b89742;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: .9rem;
+            margin-bottom: 25px;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus {
+            border-color: #b89742;
+            box-shadow: 0 0 0 .25rem rgba(184, 151, 66, .15);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #b89742, #9a7e35);
             color: white;
+            font-weight: 600;
+            transition: .3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(184, 151, 66, .3);
+        }
+
+        .login-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
+
 <body>
 
-    <div class="dashboard">
+    <div id="modalLogin">
+        <div class="login-card">
+
+            <div class="login-icon">👑</div>
+
+            <div class="login-badge">
+                Panel Privado
+            </div>
+
+            <h2 class="login-title">
+                Administración
+            </h2>
+
+            <p class="login-subtitle">
+                Bautizo & Cumpleaños de Kiara
+            </p>
+
+            <div class="mb-3">
+                <input type="email" id="email" class="form-control" placeholder="Correo electrónico">
+            </div>
+
+            <div class="mb-3 position-relative">
+                <input type="password" id="pass" class="form-control pe-5" placeholder="Contraseña">
+
+                <span id="togglePassword" style="
+            position:absolute;
+            right:15px;
+            top:50%;
+            transform:translateY(-50%);
+            cursor:pointer;
+            font-size:18px;">
+                    👁️
+                </span>
+            </div>
+            <button class="btn-login" onclick="validar()">
+                Ingresar al Panel
+            </button>
+
+        </div>
+    </div>
+    <div id="dashboard" class="dashboard" style="display:none;">
         <header>
             <div>
                 <h1>Bautizo y Cumple Kiara</h1>
-                <p>Modo Administrador - Control Total de Invitados</p>
+                <p>Modo Administrador</p>
             </div>
-            <button id="btnResetAll" class="btn-reset">🔄 Restablecer Todo a Pendiente</button>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar invitado..." onkeyup="filtrarInvitados()"
+                    style="padding:10px; border:1px solid #ccc; border-radius:4px;">
+                <button id="btnResetAll" class="btn-reset">🔄 Restablecer Todo</button>
+            </div>
         </header>
 
         <div class="stats-container">
@@ -176,195 +331,244 @@
 
         <div class="main-content">
             <div class="card">
-                <h2>Registrar Nuevo Invitado</h2>
+                <h2>Registrar Invitado</h2>
                 <form id="guestForm">
-                    <div class="form-group">
-                        <label for="fullName">Nombre de la Familia / Invitado</label>
-                        <input type="text" id="fullName" placeholder="Ej. Familia Mendoza Ramos" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="tableNumber">Número de Mesa</label>
-                        <input type="number" id="tableNumber" placeholder="Ej. 4" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pasesAsignados">Pases Asignados</label>
-                        <input type="number" id="pasesAsignados" value="1" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Estado Inicial</label>
+                    <div class="form-group"><label>Nombre</label><input type="text" id="fullName" required></div>
+                    <div class="form-group"><label>Mesa</label><input type="number" id="tableNumber" required></div>
+                    <div class="form-group"><label>Pases</label><input type="number" id="pasesAsignados" value="1"
+                            required></div>
+                    <div class="form-group"><label>Estado</label>
                         <select id="status">
-                            <option value="Pendiente">Pendiente (No ha respondido)</option>
-                            <option value="Confirmado">Confirmado (Asistirá)</option>
-                            <option value="Rechazado">Rechazado (No asistirá)</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Confirmado">Confirmado</option>
+                            <option value="Rechazado">Rechazado</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn">Guardar en Cloud Firestore</button>
+                    <button type="submit" class="btn">Guardar</button>
                 </form>
             </div>
-
             <div class="card table-container">
-                <h2>Lista de Control de Invitados</h2>
+                <h2>Control de Invitados</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Invitado / Familia</th>
+                            <th>Invitado</th>
                             <th>Mesa</th>
-                            <th>Pases Asignados</th>
-                            <th>Pases Reales</th>
-                            <th>Estado (Cambio Directo)</th>
+                            <th>Pases</th>
+                            <th>Reales</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="guestTableBody">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function validar() {
+            if (
+                document.getElementById('email').value === "eventokiara@gmail.com" &&
+                document.getElementById('pass').value === "12345"
+            ) {
+                sessionStorage.setItem("auth", "true");
+                location.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: 'Correo o contraseña incorrectos.',
+                    confirmButtonColor: '#b89742',
+                    background: '#ffffff'
+                });
+            }
+        }
+
+        document.getElementById("togglePassword").addEventListener("click", function () {
+
+            const password = document.getElementById("pass");
+
+            if (password.type === "password") {
+                password.type = "text";
+                this.textContent = "🙈";
+            } else {
+                password.type = "password";
+                this.textContent = "👁️";
+            }
+        });
+
+        if (sessionStorage.getItem("auth") === "true") {
+            document.getElementById('modalLogin').style.display = "none";
+            document.getElementById('dashboard').style.display = "block";
+        }
+    </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, writeBatch, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
-            authDomain: "bautizo-cumple-kiara.firebaseapp.com",
-            projectId: "bautizo-cumple-kiara",
-            storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
-            messagingSenderId: "761827758856",
-            appId: "1:761827758856:web:706812d34bfa118bb292bd"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY", authDomain: "bautizo-cumple-kiara.firebaseapp.com", projectId: "bautizo-cumple-kiara", storageBucket: "bautizo-cumple-kiara.firebasestorage.app", messagingSenderId: "761827758856", appId: "1:761827758856:web:706812d34bfa118bb292bd" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const guestForm = document.getElementById('guestForm');
-        const guestTableBody = document.getElementById('guestTableBody');
-        const btnResetAll = document.getElementById('btnResetAll');
 
-        // 1. ESCUCHAR EN TIEMPO REAL
+
+        // Lógica de Firebase (ya funcional)
         onSnapshot(collection(db, "invitados"), (snapshot) => {
             let listaInvitados = [];
-            snapshot.forEach((doc) => {
-                listaInvitados.push({ id: doc.id, ...doc.data() });
-            });
-            actualizarInterfaz(listaInvitados);
+            snapshot.forEach((doc) => listaInvitados.push({ id: doc.id, ...doc.data() }));
+            renderizar(listaInvitados);
         });
 
-        // 2. AGREGAR INDIVIDUAL
-        guestForm.addEventListener('submit', async (e) => {
+        document.getElementById('guestForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nombre = document.getElementById('fullName').value;
-            const mesa = parseInt(document.getElementById('tableNumber').value);
-            const pasesAsignados = parseInt(document.getElementById('pasesAsignados').value);
-            const estado = document.getElementById('status').value;
-            let pasesReales = (estado === 'Confirmado') ? pasesAsignados : 0;
+            await addDoc(collection(db, "invitados"), {
+                nombre: document.getElementById('fullName').value,
+                mesa: parseInt(document.getElementById('tableNumber').value),
+                pasesAsignados: parseInt(document.getElementById('pasesAsignados').value),
+                pasesReales: (document.getElementById('status').value === 'Confirmado') ? parseInt(document.getElementById('pasesAsignados').value) : 0,
+                estado: document.getElementById('status').value
+            });
+            document.getElementById('guestForm').reset();
+        });
 
-            try {
-                await addDoc(collection(db, "invitados"), { nombre, mesa, pasesAsignados, pasesReales, estado });
-                guestForm.reset();
-                document.getElementById('pasesAsignados').value = 1;
-            } catch (error) {
-                console.error("Error al guardar: ", error);
+        document.getElementById('btnResetAll').addEventListener('click', async () => {
+            // Ventana emergente tipo Bootstrap
+            const { value: password } = await Swal.fire({
+                title: '🔒 Seguridad',
+                text: "Esta acción borrará todos los pases confirmados y pondrá a todos en 'Pendiente'. ¿Confirmas la contraseña?",
+                input: 'password',
+                inputLabel: 'Contraseña de Administrador',
+                inputPlaceholder: 'Ingresa tu clave...',
+                showCancelButton: true,
+                confirmButtonColor: '#6f42c1', // Tu color primary
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Restablecer',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (password === "152406") {
+                const querySnapshot = await getDocs(collection(db, "invitados"));
+                const batch = writeBatch(db);
+
+                querySnapshot.forEach((documento) => {
+                    batch.update(doc(db, "invitados", documento.id), {
+                        estado: "Pendiente",
+                        pasesReales
+                        : 0
+                    });
+                });
+
+                await batch.commit();
+
+                // Ventana de éxito
+                Swal.fire('¡Éxito!', 'La base de datos ha sido restablecida.', 'success');
+
+            } else if (password !== undefined) {
+                // Si el usuario puso algo pero no era la contraseña correcta
+                Swal.fire('Error', 'Contraseña incorrecta', 'error');
             }
         });
 
-        // 3. ACTUALIZAR ESTADO DESDE LA TABLA
-        window.cambiarEstadoIndividual = async function(idDocumento, nuevoEstado, pasesAsignados) {
+
+        window.cambiarEstadoIndividual = async function (idDocumento, nuevoEstado, pasesAsignados) {
             const documentoRef = doc(db, "invitados", idDocumento);
+
+            // Si el administrador cambia a "Confirmado" manualmente desde la tabla,
+            // por defecto asignamos todos los pases.
             let nuevosPasesReales = (nuevoEstado === 'Confirmado') ? parseInt(pasesAsignados) : 0;
 
             try {
-                await updateDoc(documentoRef, { estado: nuevoEstado, pasesReales: nuevosPasesReales });
+                await updateDoc(documentoRef, {
+                    estado: nuevoEstado,
+                    pasesReales: nuevosPasesReales
+                });
             } catch (error) {
                 console.error("Error al actualizar estado:", error);
             }
         };
 
-        // 4. ELIMINAR INVITADO DE FIRESTORE (NUEVA FUNCIÓN)
-        window.eliminarInvitado = async function(idDocumento, nombreInvitado) {
-            const confirmarBorrado = confirm(`⚠️ ¿Estás seguro de que deseas eliminar por completo a "${nombreInvitado}" de la lista?`);
-            
-            if (!confirmarBorrado) return;
+        function renderizar(invitados) {
+            const body = document.getElementById('guestTableBody');
+            body.innerHTML = '';
+            let totalPases = 0, conf = 0, pend = 0;
 
-            try {
-                const docRef = doc(db, "invitados", idDocumento);
-                await deleteDoc(docRef);
-                console.log(`Eliminado con éxito: ${idDocumento}`);
-            } catch (error) {
-                console.error("Error al eliminar documento:", error);
-                alert("No se pudo eliminar el invitado.");
+            invitados.forEach(i => {
+                totalPases += i.pasesAsignados;
+                if (i.estado === 'Confirmado') conf += i.pasesReales;
+                else if (i.estado === 'Pendiente') pend += i.pasesAsignados;
+
+                body.innerHTML += `
+            <tr>
+                <td><input type="text" id="nombre-${i.id}" value="${i.nombre}" disabled></td>
+                <td><input type="number" id="mesa-${i.id}" value="${i.mesa}" style="width:50px" disabled></td>
+                <td><input type="number" id="pases-${i.id}" value="${i.pasesAsignados}" style="width:50px" disabled></td>
+                <td>${i.pasesReales || 0} confirmados</td>
+                <td>
+                    <select class="select-status-inline status-${i.estado}" onchange="cambiarEstadoIndividual('${i.id}', this.value, '${i.pasesAsignados}')">
+                        <option value="Pendiente" ${i.estado === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                        <option value="Confirmado" ${i.estado === 'Confirmado' ? 'selected' : ''}>✅ Confirmado</option>
+                        <option value="Rechazado" ${i.estado === 'Rechazado' ? 'selected' : ''}>❌ Rechazado</option>
+                    </select>
+                </td>
+                <td>
+                    <button id="btn-edit-${i.id}" class="btn-delete" onclick="activarEdicion('${i.id}')">✏️ Editar</button>
+                    <button class="btn-delete" onclick="eliminarInvitado('${i.id}', '${i.nombre}')">🗑️</button>
+                </td>
+            </tr>`;
+            });
+            document.getElementById('statTotalInvitados').innerText = invitados.length;
+            document.getElementById('statTotalPases').innerText = totalPases;
+            document.getElementById('statPasesConfirmados').innerText = conf;
+            document.getElementById('statPasesPendientes').innerText = pend;
+        }
+
+        window.activarEdicion = function (id) {
+            const btn = document.getElementById(`btn-edit-${id}`);
+            const inputs = [document.getElementById(`nombre-${id}`), document.getElementById(`mesa-${id}`), document.getElementById(`pases-${id}`)];
+
+            if (btn.innerText === "✏️ Editar") {
+                inputs.forEach(i => i.disabled = false);
+                btn.innerText = "💾 Guardar";
+            } else {
+                // Guardar en Firebase
+                const nombre = inputs[0].value;
+                const mesa = parseInt(inputs[1].value);
+                const pases = parseInt(inputs[2].value);
+
+                updateDoc(doc(db, "invitados", id), { nombre, mesa, pasesAsignados: pases });
+
+                inputs.forEach(i => i.disabled = true);
+                btn.innerText = "✏️ Editar";
             }
         };
 
-        // 5. RESTABLECER TODO
-        btnResetAll.addEventListener('click', async () => {
-            const confirmacion = confirm("⚠️ ¿Estás seguro de cambiar a PENDIENTE a todos?");
-            if (!confirmacion) return;
+        // Función de búsqueda
+        window.filtrarInvitados = function () {
+            const busqueda = document.getElementById('searchInput').value.toLowerCase();
+            const filas = document.querySelectorAll('#guestTableBody tr');
 
-            try {
-                btnResetAll.innerText = "Procesando...";
-                btnResetAll.disabled = true;
-                const querySnapshot = await getDocs(collection(db, "invitados"));
-                const batch = writeBatch(db);
-
-                querySnapshot.forEach((documento) => {
-                    const docRef = doc(db, "invitados", documento.id);
-                    batch.update(docRef, { estado: 'Pendiente', pasesReales: 0 });
-                });
-
-                await batch.commit();
-                alert("🔄 Base de datos restablecida.");
-            } catch (error) {
-                console.error(error);
-            } finally {
-                btnResetAll.innerText = "🔄 Restablecer Todo a Pendiente";
-                btnResetAll.disabled = false;
-            }
-        });
-
-        // 6. RENDER INTERFAZ
-        function actualizarInterfaz(invitados) {
-            guestTableBody.innerHTML = '';
-            let totalPasesAsignados = 0;
-            let pasesConfirmados = 0;
-            let pasesPendientes = 0;
-
-            invitados.forEach(invitado => {
-                totalPasesAsignados += invitado.pasesAsignados;
-                if (invitado.estado === 'Confirmado') pasesConfirmados += invitado.pasesReales;
-                else if (invitado.estado === 'Pendiente') pasesPendientes += invitado.pasesAsignados;
-
-                const fila = `
-                    <tr>
-                        <td><strong>${invitado.nombre}</strong></td>
-                        <td>Mesa ${invitado.mesa}</td>
-                        <td>${invitado.pasesAsignados} pases</td>
-                        <td><strong>${invitado.estado === 'Confirmado' ? invitado.pasesReales : '-'}</strong></td>
-                        <td>
-                            <select 
-                                class="select-status-inline status-${invitado.estado}" 
-                                onchange="cambiarEstadoIndividual('${invitado.id}', this.value, '${invitado.pasesAsignados}')"
-                            >
-                                <option value="Pendiente" ${invitado.estado === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
-                                <option value="Confirmado" ${invitado.estado === 'Confirmado' ? 'selected' : ''}>✅ Confirmado</option>
-                                <option value="Rechazado" ${invitado.estado === 'Rechazado' ? 'selected' : ''}>❌ Rechazado</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn-delete" onclick="eliminarInvitado('${invitado.id}', '${invitado.nombre.replace(/'/g, "\\'")}')">🗑️ Eliminar</button>
-                        </td>
-                    </tr>
-                `;
-                guestTableBody.innerHTML += fila;
+            filas.forEach(fila => {
+                const nombre = fila.querySelector('td:first-child input').value.toLowerCase();
+                if (nombre.includes(busqueda)) {
+                    fila.style.display = "";
+                } else {
+                    fila.style.display = "none";
+                }
             });
+        };
 
-            document.getElementById('statTotalInvitados').innerText = invitados.length;
-            document.getElementById('statTotalPases').innerText = totalPasesAsignados;
-            document.getElementById('statPasesConfirmados').innerText = pasesConfirmados;
-            document.getElementById('statPasesPendientes').innerText = pasesPendientes;
-        }
+
+        window.actualizarReales = async function (id, valor) {
+            const ref = doc(db, "invitados", id);
+            await updateDoc(ref, { pasesReales: parseInt(valor) });
+            console.log("Pases reales actualizados");
+        };
     </script>
+
 </body>
+
 </html>
-    
