@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-   <title>Bautizo y Cumpleaños - Kiara Jimena</title>
+    <title>Bautizo y Cumpleaños - Kiara Jimena</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -22,7 +26,11 @@
             --dark-btn: #222222;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Montserrat', sans-serif;
@@ -35,8 +43,12 @@
         /* Fondo Animado */
         .animated-bg {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; overflow: hidden;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
             background: radial-gradient(circle at 50% 50%, #ffffff, var(--bg-color));
         }
 
@@ -48,10 +60,23 @@
         }
 
         @keyframes floatUp {
-            0% { transform: translateY(105vh) scale(1); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-5vh) scale(0.8); opacity: 0; }
+            0% {
+                transform: translateY(105vh) scale(1);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-5vh) scale(0.8);
+                opacity: 0;
+            }
         }
 
         /* Layout split-screen responsivo */
@@ -68,106 +93,318 @@
             padding: 35px 25px;
         }
 
-        .hero-section { text-align: center; margin-bottom: 35px; }
+        .hero-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
 
         .event-badge {
             display: inline-block;
             background: linear-gradient(135deg, var(--accent-light), #fff);
             color: var(--primary-color);
-            padding: 6px 18px; border-radius: 50px;
-            font-size: 0.85rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 2px;
-            margin-bottom: 15px; border: 1px solid rgba(184, 151, 66, 0.2);
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(184, 151, 66, 0.2);
         }
 
         .main-title {
             font-family: 'Great Vibes', cursive;
-            font-size: 3.8rem; color: var(--primary-color);
-            line-height: 1.1; margin-bottom: 15px;
+            font-size: 3.8rem;
+            color: var(--primary-color);
+            line-height: 1.1;
+            margin-bottom: 15px;
         }
 
-        .subtitle { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
 
         /* Cuenta Regresiva */
-        .countdown-container { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
-        .countdown-item {
-            background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(184, 151, 66, 0.25);
-            padding: 12px 8px; border-radius: 14px; min-width: 68px; text-align: center;
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 30px;
         }
-        .countdown-item span { display: block; font-size: 1.6rem; font-weight: 600; color: var(--primary-color); }
-        .countdown-item small { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(184, 151, 66, 0.25);
+            padding: 12px 8px;
+            border-radius: 14px;
+            min-width: 68px;
+            text-align: center;
+        }
+
+        .countdown-item span {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .countdown-item small {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
 
         /* Información General */
-        .info-block { padding: 15px 0; text-align: center; }
-        .info-icon { font-size: 2rem; margin-bottom: 8px; }
-        .section-subtitle { font-size: 0.85rem; text-transform: uppercase; color: var(--primary-color); letter-spacing: 1px; }
-        .highlight-text { font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
-        .sub-text { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+        .info-block {
+            padding: 15px 0;
+            text-align: center;
+        }
 
-        .elegant-separator { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
-        .elegant-separator::before, .elegant-separator::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(184, 151, 66, 0.4), transparent); }
-        .diamond { width: 8px; height: 8px; background-color: var(--primary-color); transform: rotate(45deg); margin: 0 10px; }
+        .info-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
 
-        .honor-vertical-block { text-align: center; margin: 15px 0; }
-        .honor-title { font-size: 0.85rem; text-transform: uppercase; color: var(--primary-color); margin-bottom: 8px; letter-spacing: 1px; }
-        .name-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 4px; }
+        .section-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+
+        .highlight-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .sub-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .elegant-separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .elegant-separator::before,
+        .elegant-separator::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(184, 151, 66, 0.4), transparent);
+        }
+
+        .diamond {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            transform: rotate(45deg);
+            margin: 0 10px;
+        }
+
+        .honor-vertical-block {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .honor-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .name-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-bottom: 4px;
+        }
 
         .btn-location {
-            display: inline-block; margin-top: 14px; padding: 10px 20px;
-            color: var(--primary-color); border: 1px solid var(--primary-color);
-            border-radius: 8px; font-size: 0.85rem; text-decoration: none; font-weight: 600;
+            display: inline-block;
+            margin-top: 14px;
+            padding: 10px 20px;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s;
         }
-        .btn-location:hover { background-color: var(--primary-color); color: white; }
 
-        .divider { border: 0; height: 1px; background: linear-gradient(to right, transparent, var(--primary-color), transparent); margin: 35px 0; }
+        .btn-location:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .divider {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+            margin: 35px 0;
+        }
 
         /* Buscador */
-        .rsvp-section h2 { font-size: 1.5rem; margin-bottom: 10px; color: var(--primary-color); text-align: center; }
-        .rsvp-notice { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 25px; text-align: center; }
-        
-        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .rsvp-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .rsvp-notice {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
         .input-search {
-            flex: 1; padding: 14px; border: 1.5px solid #e0e0e0; border-radius: 10px;
-            font-size: 0.95rem; background-color: #fafafa; outline: none;
+            flex: 1;
+            padding: 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background-color: #fafafa;
+            outline: none;
         }
-        .input-search:focus { border-color: var(--primary-color); background-color: #fff; }
-        
+
+        .input-search:focus {
+            border-color: var(--primary-color);
+            background-color: #fff;
+        }
+
         .btn-search {
-            padding: 0 24px; background: linear-gradient(135deg, var(--primary-color) 0%, #a08235 100%);
-            color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+            padding: 0 24px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #a08235 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        .btn-search:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(184, 151, 66, 0.3); }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 151, 66, 0.3);
+        }
 
         /* Ticket Premium */
         .ticket-card {
-            background: #ffffff; border: 1px solid rgba(184, 151, 66, 0.3);
-            border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            margin-top: 20px; text-align: center;
+            background: #ffffff;
+            border: 1px solid rgba(184, 151, 66, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+            text-align: center;
         }
-        .ticket-header { background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%); padding: 20px; border-bottom: 1px dashed rgba(184, 151, 66, 0.3); }
-        .ticket-badge { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--primary-color); font-weight: 600; }
-        .ticket-main-title { font-family: 'Great Vibes', cursive; font-size: 2.2rem; color: var(--primary-color); margin-top: 5px; }
-        
-        .ticket-body { padding: 25px 20px; }
-        .ticket-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
-        .ticket-guest-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--primary-color); font-style: italic; margin: 5px 0 20px 0; }
-        
+
+        .ticket-header {
+            background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%);
+            padding: 20px;
+            border-bottom: 1px dashed rgba(184, 151, 66, 0.3);
+        }
+
+        .ticket-badge {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .ticket-main-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        .ticket-body {
+            padding: 25px 20px;
+        }
+
+        .ticket-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .ticket-guest-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-style: italic;
+            margin: 5px 0 20px 0;
+        }
+
         .ticket-meta-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            border-top: 1px solid #f5f0e1; border-bottom: 1px solid #f5f0e1; padding: 15px 0; margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            border-top: 1px solid #f5f0e1;
+            border-bottom: 1px solid #f5f0e1;
+            padding: 15px 0;
+            margin-bottom: 20px;
         }
-        .meta-label { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .ticket-footer { background-color: #fafafa; padding: 15px; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid #f0f0f0; }
+
+        .meta-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .ticket-footer {
+            background-color: #fafafa;
+            padding: 15px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid #f0f0f0;
+        }
 
         /* Botones de Acción Elegantes (Sin verde/rojo) */
-        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 12px; transition: all 0.3s; }
-        
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.3s;
+        }
+
         .btn-confirm-elegant {
             background: linear-gradient(135deg, var(--primary-color) 0%, #a08235 100%);
             color: white;
         }
-        .btn-confirm-elegant:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(184, 151, 66, 0.25); }
+
+        .btn-confirm-elegant:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 151, 66, 0.25);
+        }
 
         .btn-reject-elegant {
             background: transparent;
@@ -175,47 +412,88 @@
             border: 1px solid #dcd6c5;
             margin-top: 8px;
         }
-        .btn-reject-elegant:hover { background-color: rgba(0,0,0,0.02); color: var(--text-main); }
+
+        .btn-reject-elegant:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            color: var(--text-main);
+        }
 
         /* Botón de Descargar Imagen */
         .btn-download-image {
             background-color: var(--dark-btn);
             color: white;
-            display: none; /* Se activa tras confirmar */
+            display: none;
+            /* Se activa tras confirmar */
         }
-        .btn-download-image:hover { background-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(184, 151, 66, 0.3); }
-        
+
+        .btn-download-image:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 151, 66, 0.3);
+        }
+
         /* Mensaje de feedback adaptado a la paleta */
-        .status-feedback { 
-            margin-top: 15px; padding: 14px; border-radius: 10px; 
-            font-weight: 600; text-align: center; font-size: 0.95rem; display: none; 
+        .status-feedback {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.95rem;
+            display: none;
             border: 1px solid rgba(184, 151, 66, 0.2);
             background-color: var(--accent-light);
             color: #7c6221;
         }
 
         @media (min-width: 992px) {
-            .main-wrapper { flex-direction: row; max-width: 1000px; padding: 0; overflow: hidden; border-radius: 24px; }
-            .hero-section { width: 45%; background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%); margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 40px; border-right: 1px solid rgba(184, 151, 66, 0.15); }
-            .content-section { width: 55%; padding: 40px; max-height: 85vh; overflow-y: auto; }
+            .main-wrapper {
+                flex-direction: row;
+                max-width: 1000px;
+                padding: 0;
+                overflow: hidden;
+                border-radius: 24px;
+            }
+
+            .hero-section {
+                width: 45%;
+                background: linear-gradient(135deg, var(--accent-light) 0%, #ffffff 100%);
+                margin-bottom: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 40px;
+                border-right: 1px solid rgba(184, 151, 66, 0.15);
+            }
+
+            .content-section {
+                width: 55%;
+                padding: 40px;
+                max-height: 85vh;
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="animated-bg" id="animatedBg"></div>
 
     <div class="main-wrapper">
-        
+
         <header class="hero-section">
             <div class="event-badge">Doble Celebración</div>
             <h1 class="main-title">Bautizo & Cumpleaños</h1>
-            <p style="font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #b89742; font-style: italic; font-weight: 600; margin: 15px 0;">
+            <p
+                style="font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #b89742; font-style: italic; font-weight: 600; margin: 15px 0;">
                 de nuestra hermosa anfitriona:<br>
-                <span style="font-family: 'Montserrat', sans-serif; font-style: normal; font-size: 1.3rem; color: #1a1a1a; display: block; margin-top: 5px; font-weight: 600;">KIARA JIMENA</span>
+                <span
+                    style="font-family: 'Montserrat', sans-serif; font-style: normal; font-size: 1.3rem; color: #1a1a1a; display: block; margin-top: 5px; font-weight: 600;">KIARA
+                    JIMENA</span>
             </p>
             <p class="subtitle">Acompáñanos a celebrar este día tan especial y lleno de bendiciones.</p>
-            
+
             <div class="countdown-container">
                 <div class="countdown-item"><span id="days">00</span><small>Días</small></div>
                 <div class="countdown-item"><span id="hours">00</span><small>Horas</small></div>
@@ -231,32 +509,35 @@
                     <h3 class="section-subtitle">Fecha & Hora</h3>
                     <p class="highlight-text">Sábado, 13 de Junio de 2026</p>
                     <p class="sub-text">10:00 AM</p>
+                    <p class="sub-text">PARROQUIA GUADALUPE AM</p>
+                    <p class="sub-text">Av. Hoyos Rubio 363</p>
                 </div>
-                
+
                 <div class="elegant-separator"><span class="diamond"></span></div>
-                
+
                 <div class="honor-vertical-block">
                     <h4 class="honor-title">Con la bendición de sus Padres</h4>
                     <p class="name-text">Jorge Luis Saldaña Díaz</p>
                     <p class="name-text">Isabel Chalan Llanos</p>
                 </div>
-                
+
                 <div class="elegant-separator"><span class="diamond"></span></div>
-                
+
                 <div class="honor-vertical-block">
                     <h4 class="honor-title">Sus Padrinos</h4>
                     <p class="name-text">Carlos Orlando Chalan Llanos</p>
                     <p class="name-text">Kory Cacho Briones</p>
                 </div>
-                
+
                 <div class="elegant-separator"><span class="diamond"></span></div>
-                
+
                 <div class="info-block">
                     <div class="info-icon">📍</div>
                     <h3 class="section-subtitle">Lugar de Recepción</h3>
                     <p class="highlight-text">Local de Eventos Castope</p>
                     <p class="sub-text">Tartar, Cajamarca</p>
-                    <a href="https://maps.app.goo.gl/GjE814LRid8ZKrGR9" target="_blank" class="btn-location">Ver en Google Maps 🗺️</a>
+                    <a href="https://maps.app.goo.gl/GjE814LRid8ZKrGR9" target="_blank" class="btn-location">Ver en
+                        Google Maps 🗺️</a>
                 </div>
             </section>
 
@@ -265,14 +546,14 @@
             <section class="rsvp-section">
                 <h2>Confirmación de Asistencia</h2>
                 <p class="rsvp-notice">Ingresa tu nombre para verificar tu pase personal en nuestra lista.</p>
-                
+
                 <div class="search-container">
                     <input type="text" id="inputSearch" class="input-search" placeholder="Ej. Andres Rodas">
                     <button id="btnSearch" class="btn-search">Buscar</button>
                 </div>
 
                 <div id="ticketContainer" style="display: none;">
-                    
+
                     <div id="captureArea">
                         <div class="ticket-card">
                             <div class="ticket-header">
@@ -282,7 +563,7 @@
                             <div class="ticket-body">
                                 <p class="ticket-label">Invitado Especial</p>
                                 <h3 class="ticket-guest-name" id="ticketGuestName">-</h3>
-                                
+
                                 <div class="ticket-meta-grid">
                                     <div>
                                         <span class="meta-label">Ubicación</span>
@@ -293,7 +574,7 @@
                                         <strong id="ticketPasses">0 Pases</strong>
                                     </div>
                                 </div>
-                                
+
                                 <div style="display:flex; justify-content:center; margin-top:20px;">
                                     <div id="qrcode" style="background:#fff; padding:5px;"></div>
                                 </div>
@@ -304,14 +585,25 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div id="actionsBlock" style="margin-top:15px;">
                         <button id="btnConfirm" class="btn-action btn-confirm-elegant">✨ Confirmar Asistencia</button>
                         <button id="btnReject" class="btn-action btn-reject-elegant">No podré asistir</button>
                     </div>
 
-                    <button id="btnDownloadImage" class="btn-action btn-download-image">📥 Descargar Pase como Imagen</button>
-
+                    <div id="confirmSelection" style="display: none; margin-top: 15px; text-align: center;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">
+                            Tienes <span id="maxPases" style="font-weight: bold; color: var(--primary-color);">0</span>
+                            pases asignados. <br>
+                            ¿Cuántos asistirán?
+                        </p>
+                        <input type="number" id="inputAsistentes" min="1" class="input-search"
+                            style="text-align: center; margin-bottom: 10px;">
+                        <button id="btnConfirmFinal" class="btn-action btn-confirm-elegant">Confirmar
+                            Asistencia</button>
+                    </div>
+                    <button id="btnDownloadImage" class="btn-action btn-download-image">📥 Descargar Pase como
+                        Imagen</button>
                     <div id="statusFeedback" class="status-feedback"></div>
                 </div>
             </section>
@@ -319,150 +611,358 @@
     </div>
 
     <!-- SCRIPT DE INTERACCIÓN REVISADO Y CORREGIDO -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
-        authDomain: "bautizo-cumple-kiara.firebaseapp.com",
-        projectId: "bautizo-cumple-kiara",
-        storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
-        messagingSenderId: "761827758856",
-        appId: "1:761827758856:web:706812d34bfa118bb292bd"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVLEvgxAdbe1ydZteKpszLk4VNRcMQhMY",
+            authDomain: "bautizo-cumple-kiara.firebaseapp.com",
+            projectId: "bautizo-cumple-kiara",
+            storageBucket: "bautizo-cumple-kiara.firebasestorage.app",
+            messagingSenderId: "761827758856",
+            appId: "1:761827758856:web:706812d34bfa118bb292bd"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    let currentDocId = null;
-    let currentPassesCount = 0;
-    let guestRawName = "";
+        let currentDocId = null;
+        let currentPassesCount = 0;
+        let guestRawName = "";
 
-    // Función para normalizar texto (quita tildes y símbolos)
-    function normalizar(texto) {
-        return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-    }
+        // Función para normalizar texto (quita tildes y símbolos)
+        function normalizar(texto) {
+            return texto.toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9\s]/g, "")
+                .trim();
+        }
 
-    // Función para medir qué tan parecido es un nombre (tolerancia a errores)
-    function levenshtein(a, b) {
-        if (a.length === 0) return b.length;
-        if (b.length === 0) return a.length;
-        let row = Array.from(Array(a.length + 1).keys());
-        for (let i = 1; i <= b.length; i++) {
-            let prev = i;
-            for (let j = 1; j <= a.length; j++) {
-                let val;
-                if (b.charAt(i - 1) === a.charAt(j - 1)) val = row[j - 1];
-                else val = Math.min(row[j - 1] + 1, prev + 1, row[j] + 1);
-                row[j - 1] = prev; prev = val;
+        // Función para medir qué tan parecido es un nombre (tolerancia a errores)
+        function levenshtein(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+            let row = Array.from(Array(a.length + 1).keys());
+            for (let i = 1; i <= b.length; i++) {
+                let prev = i;
+                for (let j = 1; j <= a.length; j++) {
+                    let val;
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) val = row[j - 1];
+                    else val = Math.min(row[j - 1] + 1, prev + 1, row[j] + 1);
+                    row[j - 1] = prev; prev = val;
+                }
+                row[a.length] = prev;
             }
-            row[a.length] = prev;
+            return row[a.length];
         }
-        return row[a.length];
-    }
 
-    // BUSCADOR INTELIGENTE
-    document.getElementById('btnSearch').addEventListener('click', async () => {
-        const input = document.getElementById('inputSearch').value.trim();
-        if(!input) return alert("Ingresa un nombre.");
+        // BUSCADOR INTELIGENTE
+        document.getElementById('btnSearch').addEventListener('click', async () => {
+            const input = document.getElementById('inputSearch').value.trim();
 
-        document.getElementById('btnSearch').innerText = "Buscando...";
-        const querySnapshot = await getDocs(collection(db, "invitados"));
-        
-        let match = null;
-        const palabrasInput = input.toLowerCase().split(' ');
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const palabrasBD = data.nombre.toLowerCase().split(' ');
-
-            // Comprobamos si al menos una palabra coincide con tolerancia de 1 error
-            const coincide = palabrasInput.some(pU => 
-                palabrasBD.some(pB => levenshtein(normalizar(pU), normalizar(pB)) <= 1)
-            );
-
-            if(coincide) match = { id: doc.id, ...data };
-        });
-
-        if(match) {
-            currentDocId = match.id;
-            currentPassesCount = match.pasesAsignados;
-            guestRawName = match.nombre;
-
-            document.getElementById('ticketGuestName').innerText = match.nombre;
-            document.getElementById('ticketPasses').innerText = `${match.pasesAsignados} Personas`;
-            document.getElementById('ticketTable').innerText = `Mesa ${match.mesa}`;
-            
-            // QR seguro
-            const qrcodeDiv = document.getElementById('qrcode');
-            qrcodeDiv.replaceChildren();
-            setTimeout(() => {
-                new QRCode(qrcodeDiv, {
-                    text: `INVITADO: ${match.nombre} | PASES: ${match.pasesAsignados}`,
-                    width: 140, height: 140, colorDark: "#b89742", colorLight: "#ffffff", correctLevel: 3
+            // Alerta de validación inicial
+            if (!input) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Atención',
+                    text: 'Por favor, ingresa el nombre del invitado.',
+                    confirmButtonColor: '#b89742'
                 });
-            }, 100);
+                return;
+            }
 
-            document.getElementById('ticketContainer').style.display = "block";
-            renderizarEstadoRSVP(match.estado);
-        } else {
-            alert("No se encontró el invitado. Intenta escribir el nombre con menos errores o solo el apellido.");
-        }
-        document.getElementById('btnSearch').innerText = "Buscar";
-    });
+            document.getElementById('btnSearch').innerText = "Buscando...";
 
-    // LÓGICA DE ESTADOS
-    function renderizarEstadoRSVP(estado) {
-        const actionsBlock = document.getElementById('actionsBlock');
-        const btnDownload = document.getElementById('btnDownloadImage');
-        const feedback = document.getElementById('statusFeedback');
+            try {
+                const querySnapshot = await getDocs(collection(db, "invitados"));
+                const inputNormalizado = normalizar(input);
+                let match = null;
+                let mejorPuntaje = 0;
 
-        if(estado === 'Confirmado') {
-            actionsBlock.style.display = "none";
-            btnDownload.style.display = "block";
-            feedback.style.display = "block";
-            feedback.innerText = "✨ ¡Asistencia Confirmada!";
-        } else {
-            actionsBlock.style.display = "block";
-            btnDownload.style.display = "none";
-            feedback.style.display = "none";
-        }
-    }
+                querySnapshot.forEach((docItem) => {
 
-    document.getElementById('btnConfirm').addEventListener('click', async () => {
-        if(!currentDocId) return;
-        await updateDoc(doc(db, "invitados", currentDocId), { estado: 'Confirmado' });
-        renderizarEstadoRSVP('Confirmado');
-    });
+                    const data = docItem.data();
 
-    document.getElementById('btnReject').addEventListener('click', async () => {
-        if(!currentDocId) return;
-        await updateDoc(doc(db, "invitados", currentDocId), { estado: 'Rechazado' });
-        renderizarEstadoRSVP('Rechazado');
-    });
+                    const nombreBD = normalizar(data.nombre);
+                    const palabrasBD = nombreBD.split(" ");
 
-    // DESCARGA IMAGEN
-    document.getElementById('btnDownloadImage').addEventListener('click', () => {
-        const area = document.getElementById('captureArea');
-        area.style.width = "450px";
-        html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
-            area.style.width = "100%";
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = `Pase_${guestRawName}.png`;
-            link.click();
+                    const palabrasBusqueda = normalizar(input)
+                        .split(" ")
+                        .filter(p => p.length > 0);
+
+                    let puntaje = 0;
+
+                    // Coincidencia por palabras individuales
+                    palabrasBusqueda.forEach(palabra => {
+
+                        if (nombreBD.includes(palabra)) {
+                            puntaje += 10;
+                        }
+
+                        palabrasBD.forEach(palabraBD => {
+
+                            const distancia = levenshtein(palabra, palabraBD);
+
+                            if (distancia <= 1) {
+                                puntaje += 5;
+                            }
+
+                        });
+
+                    });
+
+                    // Coincidencia exacta del nombre completo
+                    if (nombreBD.includes(normalizar(input))) {
+                        puntaje += 50;
+                    }
+
+                    if (puntaje > mejorPuntaje) {
+                        mejorPuntaje = puntaje;
+                        match = {
+                            id: docItem.id,
+                            ...data
+                        };
+                    }
+
+                });
+                console.log("MEJOR COINCIDENCIA:", match);
+                console.log("PUNTAJE:", mejorPuntaje);
+                if (match && mejorPuntaje >= 10) {
+                    currentDocId = match.id;
+                    currentPassesCount = match.pasesAsignados;
+                    guestRawName = match.nombre;
+
+                    document.getElementById('ticketGuestName').innerText = match.nombre;
+                    document.getElementById('ticketPasses').innerText = `${match.pasesAsignados} Personas`;
+                    document.getElementById('ticketTable').innerText = `Mesa ${match.mesa}`;
+
+                    const qrcodeDiv = document.getElementById('qrcode');
+                    qrcodeDiv.replaceChildren();
+                    const nombreLimpio = match.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                    setTimeout(() => {
+                        new QRCode(qrcodeDiv, {
+                            text: `INVITADO: ${nombreLimpio} | PASES: ${match.pasesAsignados}`,
+                            width: 140,
+                            height: 140,
+                            colorDark: "#b89742",
+                            colorLight: "#ffffff",
+                            correctLevel: 2
+                        });
+                    }, 100);
+
+                    document.getElementById('ticketContainer').style.display = "block";
+                    renderizarEstadoRSVP(match.estado);
+                } else {
+                    // Alerta de no encontrado
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No encontrado',
+                        text: 'No se encontró el invitado. Verifica el nombre e intenta nuevamente.',
+                        confirmButtonColor: '#b89742'
+                    });
+                    document.getElementById('ticketContainer').style.display = "none";
+                }
+            } catch (error) {
+                console.error("Error en la búsqueda:", error);
+                // Alerta de error técnico
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Ocurrió un error al conectar con la base de datos.',
+                    confirmButtonColor: '#b89742'
+                });
+            }
+
+            document.getElementById('btnSearch').innerText = "Buscar";
         });
-    });
+        // LÓGICA DE ESTADOS ACTUALIZADA
+        function renderizarEstadoRSVP(estado) {
+            const actionsBlock = document.getElementById('actionsBlock');
+            const confirmSelection = document.getElementById('confirmSelection');
+            const btnDownload = document.getElementById('btnDownloadImage');
+            const feedback = document.getElementById('statusFeedback');
 
-    // Cuenta regresiva
-    setInterval(() => {
-        const diff = new Date(2026, 5, 13, 10, 0, 0) - new Date();
-        if (diff > 0) {
-            document.getElementById('days').innerText = Math.floor(diff / 86400000);
-            document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000);
+            if (estado === 'Confirmado') {
+                actionsBlock.style.display = "none";
+                confirmSelection.style.display = "none";
+                btnDownload.style.display = "block";
+                feedback.style.display = "block";
+                feedback.innerText = "✨ ¡Asistencia Confirmada!";
+            } else {
+                actionsBlock.style.display = "block";
+                confirmSelection.style.display = "none";
+                btnDownload.style.display = "none";
+                feedback.style.display = "none";
+            }
         }
-    }, 1000);
-</script>
+        // Evento botón Confirmar
+        document.getElementById('btnConfirm').addEventListener('click', async () => {
+
+            let cantidadAConfirmar = 0;
+
+            // 1. Lógica para determinar la cantidad
+            if (currentPassesCount <= 1) {
+                cantidadAConfirmar = 1;
+            } else {
+                const { value: cantidad } = await Swal.fire({
+                    title: 'Confirmar asistencia',
+                    text: `Tienes ${currentPassesCount} pases asignados. ¿Cuántas personas asistirán?`,
+                    icon: 'question',
+                    input: 'number',
+                    inputLabel: 'Número de asistentes',
+                    inputValue: currentPassesCount,
+                    inputAttributes: { min: 1, max: currentPassesCount },
+                    showCancelButton: true,
+                    confirmButtonColor: '#b89742',
+                    cancelButtonColor: '#dcd6c5',
+                    confirmButtonText: 'Confirmar Asistencia',
+                    cancelButtonText: 'Cancelar',
+                    inputValidator: (value) => {
+                        if (!value || value < 1 || value > currentPassesCount) {
+                            return 'Ingresa una cantidad válida entre 1 y ' + currentPassesCount;
+                        }
+                    }
+                });
+                cantidadAConfirmar = parseInt(cantidad);
+            }
+
+            // 2. Si el usuario confirmó (o es automático), procesamos
+            if (cantidadAConfirmar) {
+                try {
+                    // Ejecutamos la actualización en Firebase
+                    await finalizarConfirmacion(cantidadAConfirmar);
+
+                    // 3. ACTUALIZACIÓN VISUAL DE LA TARJETA
+                    // Reflejamos el cambio en la interfaz inmediatamente
+                    document.getElementById('ticketPasses').innerText = `${cantidadAConfirmar} ${cantidadAConfirmar === 1 ? 'Persona' : 'Personas'}`;
+
+                    // 4. AVISO UNIFICADO DE ÉXITO
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Asistencia Confirmada!',
+                        text: `Se han registrado ${cantidadAConfirmar} ${cantidadAConfirmar === 1 ? 'persona' : 'personas'}.`,
+                        confirmButtonColor: '#b89742',
+                        confirmButtonText: 'Aceptar'
+                    });
+
+                } catch (error) {
+                    console.error("Error al confirmar:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo registrar la asistencia. Intenta nuevamente.',
+                        confirmButtonColor: '#b89742'
+                    });
+                }
+            }
+        });
+        // Evento botón Confirmar Final (dentro del selector)
+        document.getElementById('btnConfirmFinal').addEventListener('click', async () => {
+            const cantidad = parseInt(document.getElementById('inputAsistentes').value);
+            if (cantidad < 1 || cantidad > currentPassesCount) {
+                return alert("Por favor, ingresa una cantidad válida de personas.");
+            }
+            finalizarConfirmacion(cantidad);
+        });
+
+        // Función para guardar en Firebase
+        async function finalizarConfirmacion(cantidad) {
+            if (!currentDocId) return;
+            try {
+                await updateDoc(doc(db, "invitados", currentDocId), {
+                    estado: 'Confirmado',
+                    pasesReales: cantidad
+                });
+                renderizarEstadoRSVP('Confirmado');
+            } catch (e) {
+                alert("Error al confirmar, intenta de nuevo.");
+            }
+        }
+
+        // Evento botón Rechazar
+        document.getElementById('btnReject').addEventListener('click', async () => {
+            if (!currentDocId) return;
+
+            // Alerta de confirmación antes de borrar
+            const result = await Swal.fire({
+                title: '¿Confirmas?',
+                text: "Marcarás tu asistencia como 'Rechazado'.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#b89742',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, confirmar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                await updateDoc(doc(db, "invitados", currentDocId), { estado: 'Rechazado' });
+                Swal.fire('Actualizado', 'Se ha registrado que no asistirás.', 'success');
+                document.getElementById('ticketContainer').style.display = "none";
+            }
+        });
+        // DESCARGA IMAGEN
+        document.getElementById('btnDownloadImage').addEventListener('click', () => {
+            const area = document.getElementById('captureArea');
+            area.style.width = "450px";
+            html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+                area.style.width = "100%";
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `Pase_${guestRawName}.png`;
+                link.click();
+            });
+        });
+
+        // Cuenta regresiva corregida
+        setInterval(() => {
+            const targetDate = new Date(2026, 5, 13, 10, 0, 0); // 13 de Junio 2026, 10:00 AM
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('days').innerText = String(days).padStart(2, '0');
+                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+            } else {
+                // Si el evento ya pasó
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00";
+            }
+        }, 1000);
+    </script>
+    <div style="text-align: center; margin: 40px 0; padding: 20px;">
+        <a href="admin.html" style="
+            background-color: #ffffff;
+            color: #b89742;
+            padding: 12px 25px;
+            border: 2px solid #b89742;
+            border-radius: 30px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(184, 151, 66, 0.2);
+            transition: all 0.3s ease;
+            display: inline-block;
+        " onmouseover="this.style.backgroundColor='#b89742'; this.style.color='#ffffff'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.backgroundColor='#ffffff'; this.style.color='#b89742'; this.style.transform='scale(1)';">
+            ⚙️ ADMINISTRADOR
+        </a>
+    </div>
 </body>
+
 </html>
